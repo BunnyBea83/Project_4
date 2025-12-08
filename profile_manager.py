@@ -12,7 +12,10 @@ class ProfileManager:
     def add_profile(self, name, location, relationship_status, age, occupation, astrological_sign, status=""):
         ''' Add a user profile to the profile manager'''
         user = UserProfile(name, location, relationship_status,age, occupation, astrological_sign, status)
+        # Add the profile to dictionary manager
         self.dict_manager.add(name, user)
+        # Add the profile to graph manager
+        self.graph_manager.add_vertex(name)
 
     def get_profile(self, name):
         '''Obtain user profile from the profile manager
@@ -25,7 +28,7 @@ class ProfileManager:
         self.dict_manager.remove(name)
         
     def connect_profiles(self, name1, name2, weight=0):
-        self.manager.add_edge(name1, name2, weight = 0)
+        self.graph_manager.add_edge(name1, name2, weight = 0)
 
     def display_profiles(self):
         '''TODO: figure out where to start display from and if search methods return a list'''
