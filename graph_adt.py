@@ -26,14 +26,13 @@ class Vertex:
         self.neighbors.add(nbr) 
 
     def get_connections(self):
-        """Retrieves the set of all vertices (referenced by key) connected to the current vertex.
+        """Returns a list of all vertices (referenced by key) connected to the current vertex.
         
-        :rtype set, a set of keys.
+        :rtype list, a list of keys.
         """
-        return self.neighbors 
+        return list(self.neighbors)
     
-    def get_id(self): #confused about this one, since if v is a Vertex then v.key already returns the key
-        #should key be made a private field? Or should get_id return something else...?
+    def get_id(self): 
         """Retrieves the vertex's key.
         
         :rtype any: the vertex's key.
@@ -50,10 +49,7 @@ class UndirectedGraph:
     """Represents one undirected graph, composed of vertices and undirected edges."""
     
     def __init__(self):
-        """The constructor for the class.
-        
-        Initializes an empty dictionary of vertices.
-        """
+        """The constructor for the class. Initializes an empty dictionary of vertices."""
         self.clear()
 
     def add_vertex(self, key):
@@ -63,11 +59,14 @@ class UndirectedGraph:
         :rtype Vertex: returns the Vertex object which has been added.
         
         """
-        if key not in self.vertices:
+        if self.vertices.get_value(key) is None:
             self.vertices.add(key, Vertex(key))
             #adds key-value pair to our dictionary of vertices: 
             #key is the key name of the Vertex, value is the Vertex object.
-        return self.vertices.get_value(key)
+        return self.vertices.get_value(key) #might decide to return keys instead?
+    
+
+
         
     def get_vertex(self, key):
         """Retrieves the Vertex object associated with the given key.
@@ -78,22 +77,24 @@ class UndirectedGraph:
         return self.vertices.get_value(key)
           
     def add_edge(self, from_key, to_key):
-        """Adds an edge to the graph by adding two vertices as neighbors of each other.
-        Does nothing if either vertex does not exist in the graph.
+        """Adds an edge to the graph by adding two different vertices as neighbors of each other.
+        Does nothing if either vertex does not exist in the graph or if the edge would be a self-loop.
 
         Since the graph is undirected, if A is a neighbor of B, then B is a neighbor of A.
         
         :type any: from_key, one of the endpoints of the edge.
         :type any: to_key, the other endpoint of the edge.
         """
-        if to_key in self.vertices and from_key in self.vertices: 
+        if self.contains(from_key) and self.contains(to_key) and to_key != from_key:
             self.vertices.get_value(from_key).add_neighbor(to_key)
             self.vertices.get_value(to_key).add_neighbor(from_key)
+
 
     def get_vertices(self):
         """Retrieves a list of all vertices in the graph.
         
-        :rtype list: a list of all the graph's vertices."""
+        :rtype list: a list of all the graph's vertices.
+        """
         list_vertices = []
         for key in self.vertices.get_keys():
             list_vertices.append(self.vertices.get_value(key))
@@ -106,7 +107,7 @@ class UndirectedGraph:
         :type any: key, the key to be searched for.
         :rtype boolean: True if the key is in the graph, False otherwise.
         """
-        return key in self.vertices.get_keys()
+        return self.vertices.get_value(key) is not None 
 
     def clear(self):
         """Clears the graph of all vertices and makes it empty."""
@@ -116,14 +117,14 @@ class UndirectedGraph:
         """Checks if the graph is empty.
         
         :rtype boolean: True if the graph is empty, False otherwise."""
-        return len(self.vertices) == 0
+        return self.vertices.get_size() == 0
 
     def size(self):
         """Returns the number of vertices in the graph.
         
         :rtype int: the size of the graph.
         """
-        return len(self.vertices)
+        return self.vertices.get_size()
 
     def get_edges(self):
         """Returns a list of edges in the graph while avoiding duplicates.
@@ -131,22 +132,70 @@ class UndirectedGraph:
         :rtype list: a list of tuples. Each tuple is a pair of vertices; the edge is implicit between them.
         """
         edges = []
+
         for k in self.vertices.get_keys():
             v = self.vertices.get_value(k)
             for nbr in v.get_connections():
                 if (nbr, k) not in edges:
-                    edges.append(k, nbr)
-        # for v in self.vertices.values(): #for each Vertex object
-        #     for nbr in v.get_connections(): #for each of its neighbors
-        #         if (nbr, v.key) not in edges:  #prevents duplicates
-        #             edges.append((v.key, nbr)) 
+                    edges.append((k, nbr))
         return edges
 
 
 
-#      bfs(self, start)
-# #    #     This implementation should use a queue.
-#      dfs(self, start)
+    def bfs(self, start): 
+        """Traverses the graph in a breadth-first search.
+
+        Runs in linear time (O(n + m) for n vertices and m edges.)
+        
+        :type any: start, the key for the starting vertex.
+        :rtype list: A list of keys in the breadth-first order visited.
+        """
+        if not self.contains(start): #key not in graph
+            return []
+        
+        discovered_set = set() 
+        vertex_queue = LinkedQueue()
+        traversal_order = []
+
+        vertex_queue.enqueue(start) #queue of keys
+
+        while not vertex_queue.is_empty():
+            current = vertex_queue.dequeue() 
+            discovered_set.add(current)
+            traversal_order.append(current)
+            for nbr in self.get_vertex(current).get_connections(): #nbrs are keys
+                if nbr not in discovered_set: #discover and enqueue any undiscovered neighbors
+                    discovered_set.add(nbr)
+                    vertex_queue.enqueue(nbr) 
+
+        return traversal_order
+
+
+    def dfs(self, start):
+        """Traverses the graph in a depth-first search.
+        
+        Runs in linear time (O(n + m) for n vertices and m edges.)
+        
+        :type any: start, the key for the starting vertex.
+        :rtype list: A list of keys in the depth-first order visited.
+        """
+        if not self.contains(start): #key not in graph
+            return []
+        
+        vertex_stack = [start] #stack of keys
+        visited_set = set()
+        traversal_order = []
+
+        while len(vertex_stack) != 0:
+            current = vertex_stack.pop()
+            visited_set.add(current)
+            traversal_order.append(current)
+            for nbr in self.get_vertex(current).get_connections(): #nbrs are keys
+                if nbr not in visited_set:
+                    visited_set.add(nbr)
+                    vertex_stack.append(nbr) #push to the top of the stack
+
+        return traversal_order
 
     
 
