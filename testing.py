@@ -28,9 +28,19 @@ def test_undirected_graph():
 # ------------------------------------ #
 
 # BEA'S TEST CODE GOES BELOW THE LINE
-
-
-
+from user_profile import UserProfile
+def test_user_profile():
+    user = UserProfile('Bea', 'Lynnwood', 'In a Relationship',26 ,'Pastry Chef', 'Libra', "Online")
+    user.print_details()
+    user.add_photo('Bea.jpg')
+    user.add_friend("Leah")
+    user.add_friend('John')
+    print(user.get_friends())
+    user.remove_friend('John')
+    user.set_name('Bean')
+    user.set_status(False)
+    user.set_relationship('Married')
+    user.print_details()
 
 
 
@@ -44,6 +54,6 @@ if __name__ == "__main__":
     test_vertex()
 
     #BEA'S TEST METHOD CALLS GO HERE:
-
+    test_user_profile()
 
     print("All tests passed!")

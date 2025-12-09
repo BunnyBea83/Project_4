@@ -76,16 +76,26 @@ class UserProfile:
         '''Set users relationship status, within allowed relationship statuses
         
         :type string: status, relationship the user is in'''
-        allowed_relations = {"single", "in a relationship", "married", "1", "2", "3"}
-        if status and status.lower() in allowed_relations:
-            if status == "1" or status == "single":
-                self.status = "Single"
-            if status == "2" or status == "in a relationship":
-                self.status = "In a Relationship"
-            elif status == "3" or "married":
-                self.status = "Married"
-        print("Invalid Status. Please choose: 1)Single, 2)In a Relationship, 3)Married")
-    
+        #Validate status given
+        if not status:
+            print("Invalid Status. Please choose: 1) Single, 2) In a Relationship, 3) Married")
+            return
+        choice = status.strip().lower()
+        # Accept both numeric shortcuts and textual labels
+        mapping = {
+            "1": "Single",
+            "single": "Single",
+            "2": "In a Relationship",
+            "in a relationship": "In a Relationship",
+            "3": "Married",
+            "married": "Married",
+        }
+        #Update relationship status if it resides within mapping
+        if choice in mapping:
+            self.relationship_status = mapping[choice]
+            return
+        print("Invalid Status. Please choose: 1) Single, 2) In a Relationship, 3) Married")
+
     def set_status(self, status= bool):
         '''Set users activity status
         
@@ -105,7 +115,7 @@ class UserProfile:
     def add_friend(self, friend_profile):
         '''Add a friend to friends list.
         
-        :type any: friend_profile, User profile of friend.
+        :type string: friend_profile, Name of friend to add.
         '''
         self.friends.append(friend_profile)
 
@@ -121,10 +131,15 @@ class UserProfile:
         
         :rtype string: Details of users profile.
         '''
-        print(f'Image: {self.photo}/nStatus: {self.status}/nName: {self.name}/n'
-              f'Age: {self.age:>5} Occupation: {self.occupation:>22} Location: {self.location}/n'
-              f'Relationship Status: {self.relationship_status:>18} Astrological Sign: {self.astrological_sign} /n'
-              f'Friends List: {self.friends}')
+        print(
+            f"Image: {self.photo}\n"
+            f"Status: {self.status}\n"
+            f"Name: {self.name}\n"
+            f"Age: {self.age:<5} Occupation: {self.occupation:<22} Location: {self.location}\n"
+            f"Relationship Status: {self.relationship_status:<24} Astrological Sign: {self.astrological_sign}\n"
+            f"Friends List: {self.friends}"
+        )
+
 
     def add_photo(self, photo):
         '''Add a photo to profile.
