@@ -1,5 +1,7 @@
 # LEAH'S TEST CODE GOES ABOVE THE LINE
 
+#TODO: UNCOMMENT ALL TEST METHODS BEFORE PUSHING
+
 from graph_adt import Vertex
 from graph_adt import UndirectedGraph
 
@@ -10,11 +12,14 @@ def test_vertex():
     v_a = Vertex("Anne")
     v_b = Vertex("Bea")
     v_c = Vertex("Caroline")
-    v_a.add_neighbor(v_b)
-    v_a.add_neighbor(v_c)
+    v_a.add_neighbor("Bea")
+    v_a.add_neighbor("Caroline")
     assert v_a.get_id() == "Anne"
     print(v_a.get_connections())
     print(v_b.get_connections())
+    v_a.remove_neighbor("Xochitl") #should do nothing
+    v_a.remove_neighbor("Caroline")
+    print(v_a.get_connections())
 
 def test_undirected_graph():
     test_graph = UndirectedGraph()
@@ -53,6 +58,12 @@ def test_undirected_graph():
     print(test_graph.dfs("Fergie")) #FDEIGH or FDGHEI
     print(test_graph.dfs("Georgiana")) #starts with G, contains "D -> F" and "E -> I", no dupes
     assert test_graph.dfs("Xochitl") == []
+
+    test_graph.remove_vertex("Diana")
+    print(test_graph.get_vertices())
+    print(test_graph.get_edges())
+    print(test_graph.bfs("Georgiana"))
+    print(test_graph.dfs("Fergie"))
 
     test_graph.clear()
     assert test_graph.is_empty()
