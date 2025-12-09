@@ -51,7 +51,7 @@ def test_undirected_graph():
     assert test_graph.bfs("Xochitl") == []
 
     print(test_graph.dfs("Fergie")) #FDEIGH or FDGHEI
-    print(test_graph.dfs("Georgiana")) #GHDFEI or #GDFEIH or #GEIDFH
+    print(test_graph.dfs("Georgiana")) #starts with G, contains "D -> F" and "E -> I", no dupes
     assert test_graph.dfs("Xochitl") == []
 
     test_graph.clear()

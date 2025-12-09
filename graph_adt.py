@@ -133,10 +133,10 @@ class UndirectedGraph:
         """
         edges = []
 
-        for k in self.vertices.get_keys():
-            v = self.vertices.get_value(k)
-            for nbr in v.get_connections():
-                if (nbr, k) not in edges:
+        for k in self.vertices.get_keys(): 
+            v = self.vertices.get_value(k) #check each vertex
+            for nbr in v.get_connections(): #check each vertex's connections
+                if (nbr, k) not in edges: #avoid duplicates--if (A, B) is already in the list, we don't want to add (B, A)
                     edges.append((k, nbr))
         return edges
 
