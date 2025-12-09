@@ -117,14 +117,16 @@ class UserProfile:
         
         :type string: friend_profile, Name of friend to add.
         '''
-        self.friends.append(friend_profile)
+        if friend_profile not in self.get_friends():
+            self.friends.append(friend_profile)
 
     def remove_friend(self, friend_profile):
         '''Remove a friend from friends list
         
         :type any: friend_profile, profile to remove from list
         '''
-        self.friends.remove(friend_profile)
+        if friend_profile in self.get_friends():
+            self.friends.remove(friend_profile)
 
     def print_details(self):
         '''Display all details of user.
