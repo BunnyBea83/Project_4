@@ -33,8 +33,8 @@ class ProfileManager:
         :rtype any: profile(vertex), Users profile stored in the undirected graph manager, None if not valid name.
         '''
         #Verify user name, return their data if found.
-        if self.verify_user(name):
-            return self.dict_manager.get_value(name)
+        val_user = self.verify_user(name)
+        return self.dict_manager.get_value(val_user)
        
     
     def remove_profile(self, name):
@@ -44,14 +44,10 @@ class ProfileManager:
         :type string: name, Users' name which will be removed from all structures.
         '''
         #Verify Users' name, then remove data from all structures
-        if self.verify_user(name):
-            self.dict_manager.remove(name)
-            #insert command for removing vertices and disconnecting edges
-            print(f'User: {name} has been deleted.')
-        #Error will raise if invalid name given, return None
-        else:
-            return None
-
+        val_user = self.verify_user(name)
+        self.dict_manager.remove(val_user)
+        #insert command for removing vertices and disconnecting edges
+        print(f'User: {name} has been deleted.')
         
     def connect_profiles(self, name1, name2, weight=0):
         '''Connect profile of one user to another via vertices and edges.
@@ -83,35 +79,33 @@ class ProfileManager:
         :rtype string: String of users information
         '''
         #Ensure the name is of a valid user
-        if self.verify_user(name):
-            #Store user information
-            user = self.dict_manager.get_value(name)
-            #Print user information
-            return user.print_details()
-        # Error raised if user doesn't exist. Return None
-        else:
-            return None
+        val_user = self.verify_user(name)
+        #Store user information
+        user = self.dict_manager.get_value(val_user)
+        #Print user information
+        return user.print_details()
             
     def get_friends_of_friends(self, name):
         ''' Obtain a list of friends of a users friends
-        @return'''
-        # Ensure the user exists
-        if self.verify_user(name):
-            #prompt user for search type
-            choice = self.search_prompt()
-            #access user profile
-            user = self.manager.get_vertex(name)
-            #get users friends
-            friends = user.get_friends()
-            #loop get friends of friend, use search based on users request
-            for friend in friends:
-                if choice == 'bfs' or choice == 'breadth-first-search':
-                    self.manager.bfs(friend)
-                else:
-                    self.manager.dfs(friend)
-        # Error raised if user not valid, return none
-        else:
-            return None
+
+        :type string: name, Name of user to obtain friends of.
+        :rtype list: List of friends of users friends'''
+        #Validate name given
+        val_name = self.verify_user(name)
+        #Prompt user for search type
+        choice = self.search_prompt()
+        #Access user profile
+        user = self.manager.get_vertex(val_name)
+        #get users friends
+        friends = user.get_friends()
+        #loop get friends of friend, use search based on users request
+        for friend in friends:
+            if choice == 'bfs' or choice == 'breadth-first-search':
+                return self.manager.bfs(friend)
+            else:
+                return self.manager.dfs(friend)
+
+    
 
     def read_profiles_from_csv(self, file_path):
         #TODO: figure out adding user and friends
@@ -205,9 +199,12 @@ class ProfileManager:
         :type string: name, Name of user to varify.
         :rtype boolean: True if user found, False otherwise.
         '''
-        if name in self.dict_manager.get_keys():
-            return True
-        print(f'User: {name} does not exist within directory. Please enter a valid name.')
-        return False
+        while True:
+            user = (name or input("enter a User's name: ")).strip()
+            if user in self.dict_manager.get_keys():
+                return user
+            print(f'User: {user} does not exist within directory. Please enter a valid name.')
+            #Force Reprompt
+            name = None
         
             
