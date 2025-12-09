@@ -15,6 +15,9 @@ class LinkedDictionary:
 
     def get_keys(self):
         return self.dict.keys()
+    
+    def get_size(self):
+        return len(self.dict)
 
 class LinkedQueue:
     # Simple queue implementation using list
