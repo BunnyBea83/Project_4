@@ -1,5 +1,8 @@
 # graph_adt was written by Leah
 
+#CHANGELOG:
+#get_vertices now returns a list of keys instead of a list of Vertex objects
+
 from linked_adts import LinkedQueue
 from linked_adts import LinkedDictionary
 
@@ -31,6 +34,10 @@ class Vertex:
         :rtype list, a list of keys.
         """
         return list(self.neighbors)
+    
+    def remove_neighbor(self, nbr):
+        if nbr in self.neighbors:
+            self.neighbors.remove(nbr)
     
     def get_id(self): 
         """Retrieves the vertex's key.
@@ -65,9 +72,22 @@ class UndirectedGraph:
             #key is the key name of the Vertex, value is the Vertex object.
         return self.vertices.get_value(key) #might decide to return keys instead?
     
+    def remove_vertex(self, key):
+        if not self.contains(key):
+            return
 
+        removed = self.get_vertex(key) 
 
+        #remove edges incident to vertex
+        for nbr_key in removed.get_connections(): 
+            nbr_vertex = self.get_vertex(nbr_key)
+            nbr_vertex.remove_neighbor(key)
         
+        #remove vertex
+        self.vertices.remove(key)
+
+                        
+     
     def get_vertex(self, key):
         """Retrieves the Vertex object associated with the given key.
         
@@ -91,15 +111,12 @@ class UndirectedGraph:
 
 
     def get_vertices(self):
-        """Retrieves a list of all vertices in the graph.
+        """Retrieves a list of keys of all vertices in the graph.
         
-        :rtype list: a list of all the graph's vertices.
+        :rtype list: a list of all the graph's vertices, represented as keys.
         """
-        list_vertices = []
-        for key in self.vertices.get_keys():
-            list_vertices.append(self.vertices.get_value(key))
+        return list(self.vertices.get_keys())
 
-        return list_vertices
 
     def contains(self, key):
         """Checks if the given key is in the graph.
@@ -129,7 +146,7 @@ class UndirectedGraph:
     def get_edges(self):
         """Returns a list of edges in the graph while avoiding duplicates.
 
-        :rtype list: a list of tuples. Each tuple is a pair of vertices; the edge is implicit between them.
+        :rtype list: a list of tuples. Each tuple is a pair of vertices (as keys); the edge is implicit between them.
         """
         edges = []
 
