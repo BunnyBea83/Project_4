@@ -1,16 +1,25 @@
-from graph_adts import UndirectedGraph
+''' Author: Bea Sauve    Date:  12/08/2025   Class: AD325'''
+from graph_adt import UndirectedGraph
 from linked_adts import LinkedDictionary
 from user_profile import UserProfile
 import csv
+import graphviz
 
 class ProfileManager:
     def __init__(self):
-        '''Create the profile manager'''
+        '''The constructor for the class
+        
+        Initialises a linked dictionary to manage and an Undirected Graph
+        '''
         self.dict_manager = LinkedDictionary()
         self.graph_manager = UndirectedGraph()
 
     def add_profile(self, name, location, relationship_status, age, occupation, astrological_sign, status=""):
-        ''' Add a user profile to the profile manager'''
+        ''' Add a user profile to the linked dictionary and graph manager.
+        
+        :type string: name, location, relationship_status, occupation, atrological_sign, status, Information about the user.
+        :type int: age, The users' age
+        '''
         user = UserProfile(name, location, relationship_status,age, occupation, astrological_sign, status)
         # Add the profile to dictionary manager
         self.dict_manager.add(name, user)
@@ -19,35 +28,65 @@ class ProfileManager:
 
     def get_profile(self, name):
         '''Obtain user profile from the profile manager
-        @return profile(vertex): Users profile stored in the undirected graph manager'''
-        return self.dict_manager.get_value(name)
+
+        :type string: name, Users' name to obtain data from.
+        :rtype any: profile(vertex), Users profile stored in the undirected graph manager, None if not valid name.
+        '''
+        #Verify user name, return their data if found.
+        if self.verify_user(name):
+            return self.dict_manager.get_value(name)
+       
     
     def remove_profile(self, name):
         '''TODO: Figure this out'''
-        ''' Remove a users profile from the undirected graph (and other locations)'''
-        self.dict_manager.remove(name)
+        ''' Remove a users profile from all manager locations.
+
+        :type string: name, Users' name which will be removed from all structures.
+        '''
+        #Verify Users' name, then remove data from all structures
+        if self.verify_user(name):
+            self.dict_manager.remove(name)
+            #insert command for removing vertices and disconnecting edges
+            print(f'User: {name} has been deleted.')
+        #Error will raise if invalid name given, return None
+        else:
+            return None
+
         
     def connect_profiles(self, name1, name2, weight=0):
+        '''Connect profile of one user to another via vertices and edges.
+        
+        :type string: name1, name2, Names of both users to connect.
+        '''
         self.graph_manager.add_edge(name1, name2, weight = 0)
 
     def display_profiles(self):
-        '''TODO: figure out where to start display from and if search methods return a list'''
+        '''TODO: figure out where to start display from and if search methods return a list.'''
+        '''Display all Profiles present in manager.
+        
+        :rtype list: List of all user profiles displayed in chosen search order.
+        '''
+        #Prompt and validate user input
         choice = self.search_prompt()
         if choice == 'bfs' or choice == 'breadth-first-search':
             # Display all the profiles in bfs order
-            return self.manager.bfs()
+            return self.graph_manager.bfs()
         else:
             # Display all profiles in dfs order
-            return self.manager.dfs()
+            return self.graph_manager.dfs()
         
 
     def display_profile_details(self, name):
-        ''' If user exists in directory, display their profile details
-        @return (str): String of users information'''
-        # Ensure the name is of a valid user
+        ''' If user exists in directory, display their profile details.
+
+        :type string: name, Name of user to display information of.
+        :rtype string: String of users information
+        '''
+        #Ensure the name is of a valid user
         if self.verify_user(name):
             #Store user information
-            user = self.manager.get_vertex(name)
+            user = self.dict_manager.get_value(name)
+            #Print user information
             return user.print_details()
         # Error raised if user doesn't exist. Return None
         else:
@@ -121,21 +160,52 @@ class ProfileManager:
                         
 
     def create_user_graph(self, current_user, depth=1):
-        return
+        '''Display graph of user and their friend connections.
+        
+        :type vertex: Vertex on graph indicated by current user.
+        :rtype graphviz: Visualization of user and who their connected to.
+        '''
+        dot = graphviz.graph()
+        self.__add_nodes(dot,self.graph_manager.get_vertex(current_user))
+        return dot
+
+    def __add_nodes(self, dot, node):
+        ''' Helper method to recursively add nodes and edges to Graphviz object
+        
+        :type dot: dot object Diagraph for graphviz
+        :type node:'''
+        if node:
+            dot.node(str(node), f"{node}")
+            if node.left:
+                dot.edge(str(node.key), str(node.left.key))
+                self._add_nodes(dot, node.left)
+            if node.right:
+                dot.edge(str(node.key), str(node.right.key))
+                self._add_nodes(dot, node.right)
     
     def search_prompt(self):
+        '''Helper method: Verify users search choice.
+        
+        :rtype string: choice, users validated search type choice.
+        '''
+        #Predetermined choice types
         valid_choice = {'bfs', 'breadth-first-search', 'dfs', 'depth-first-search'}
-        # keep looping till a valid input is made
+        #Keep looping till a valid input is made
         while True:
             choice = input("Choose display order: 'Breadth-First-Search' or 'Depth-First-Search'? ('BFS' and 'DFS' also accepted)").strip().lower()
+            #Verify their choice resides within predetermined choice types.
             if choice in valid_choice:
                 return choice
+            #Prompt user if invalid input given.
             print("Invalid Input: Please enter 'BFS', 'DFS', 'Breadth-First-Search' or 'Depth-First-Search'")
     
     def verify_user(self, name):
-        ''' verify the user exists within the directory
-        @return (boolean): True if user found, False otherwise'''
-        if self.manager.contains(name):
+        '''Helper Method: Verify the user exists within the directory. Prompt if user isn't in directory
+
+        :type string: name, Name of user to varify.
+        :rtype boolean: True if user found, False otherwise.
+        '''
+        if name in self.dict_manager.get_keys():
             return True
         print(f'User: {name} does not exist within directory. Please enter a valid name.')
         return False
