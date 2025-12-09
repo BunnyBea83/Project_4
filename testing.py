@@ -28,6 +28,7 @@ def test_undirected_graph():
 # ------------------------------------ #
 
 # BEA'S TEST CODE GOES BELOW THE LINE
+#Author: Bea Sauve   Date 12/08/2025   Class: AD325
 from user_profile import UserProfile
 def test_user_profile():
     user = UserProfile('Bea', 'Lynnwood', 'In a Relationship',26 ,'Pastry Chef', 'Libra', "Online")
