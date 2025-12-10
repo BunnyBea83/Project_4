@@ -1,3 +1,6 @@
+#Instructor supplied code.
+#Except get_size which was added by Leah.
+
 class LinkedDictionary:
     # Simple dictionary implementation
     def __init__(self):
