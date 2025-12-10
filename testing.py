@@ -138,29 +138,27 @@ def test_profile_manager():
         print(manager.get_profile('Leah'))
     manager.connect_profiles('Bea','Cow')
     manager.connect_profiles('Kate',"Bea")
-    with patch("builtins.input", side_effect = ["BFS"]):
-        print(manager.display_profiles())
-    with patch("builtins.input", side_effect = ["DFS"]):
-        print(manager.display_profiles())
+    manager.connect_profiles('Kate',"John")
     manager.display_profile_details('Kate')
     #display friends of friend
     with patch("builtins.input", side_effect = ["DFS"]):
-        #should return only Bea
-        print(manager.get_friends_of_friends("Kate"))
-        #display friends of friend
+        #should return  Cow Kate
+        print(manager.get_friends_of_friends("Bea"))
     with patch("builtins.input", side_effect = ["BFS"]):
-        #should return only Bea
-        print(manager.get_friends_of_friends("Kate"))
+        #should return Kate Cow
+        print(manager.get_friends_of_friends("Bea"))
     #test csv reader
     manager.read_profiles_from_csv("data\\test.csv")
     with patch("builtins.input", side_effect = ["DFS"]):
-        #TODO: Currently doesnt display due to limitations on BFS and DFS
+        #display all profiles should show unconnected vertices
         print(manager.display_profiles())
     #remove a user from the profile manager
     manager.remove_profile("Bea")
     #Should display Kate, John, Cow (not in that order)
     with patch("builtins.input", side_effect = ["DFS"]):
         print(manager.display_profiles())
+    #test visulaization
+    manager.create_user_graph("Bob")
 
 
 # ------------------------------------ #

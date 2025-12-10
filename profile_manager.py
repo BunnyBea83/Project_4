@@ -107,9 +107,9 @@ class ProfileManager:
         choice = self.search_prompt()
         #Traverse based on choice given
         if choice == 'bfs' or choice == 'breadth-first-search':
-            return self.graph_manager.bfs(val_name)
+            return self.graph_manager.limited_bfs(val_name, 1)
         else:
-            return self.graph_manager.dfs(val_name)
+            return self.graph_manager.limited_dfs(val_name, 1)
 
     
 
@@ -166,23 +166,30 @@ class ProfileManager:
         :type vertex: Vertex on graph indicated by current user.
         :rtype graphviz: Visualization of user and who their connected to.
         '''
-        dot = graphviz.graph()
-        self.__add_nodes(dot,self.graph_manager.get_vertex(current_user))
+        dot = graphviz.Graph()
+        visited = set()
+        start = self.graph_manager.get_vertex(current_user)
+        self.__add_nodes(dot, start, visited)
+        dot.render(f"{current_user}_graph", format="png", view=True)
         return dot
 
-    def __add_nodes(self, dot, node):
+    def __add_nodes(self, dot, node, visited):
         ''' Helper method to recursively add nodes and edges to Graphviz object
         
         :type dot: dot object Diagraph for graphviz
         :type node:'''
-        if node:
-            dot.node(str(node), f"{node}")
-            if node.left:
-                dot.edge(str(node.key), str(node.left.key))
-                self._add_nodes(dot, node.left)
-            if node.right:
-                dot.edge(str(node.key), str(node.right.key))
-                self._add_nodes(dot, node.right)
+        #keep track of vertices, and loop till all have been visited
+        if node is None or node.key in visited:
+            return
+        visited.add(node.key)
+        #obtain a list of all connected keys
+        friends_list = node.get_connections()
+        #create the vertex into a node
+        dot.node(node.key, node.key)
+        for friend in friends_list:
+            dot.edge(node.key, friend)
+            friend_vertex = self.graph_manager.get_vertex(friend)
+            self.__add_nodes(dot, friend_vertex, visited)
     
     def search_prompt(self):
         '''Helper method: Verify users search choice.
