@@ -36,7 +36,7 @@ def test_undirected_graph():
     test_graph.add_edge("Diana", "Fergie") #duplicate should add nothing
     test_graph.add_edge("Fergie", "Fergie") #self-loop should add nothing
     test_graph.add_edge("Diana", "Evita")
-    print(test_graph.get_edges())
+    print(f"List of edges: {test_graph.get_edges()}")
 
     v_g = test_graph.add_vertex("Georgiana")
     v_h = test_graph.add_vertex("Henrietta")
@@ -45,28 +45,52 @@ def test_undirected_graph():
     test_graph.add_edge("Georgiana", "Henrietta")
     test_graph.add_edge("Georgiana", "Evita")
     test_graph.add_edge("Evita", "Indira")
+    test_graph.add_vertex("Xochitl") #unconnected vertex
     # test graph now looks like:
     #  F---D---G---H
     #       \ /
-    #        E
-    #        |
+    #        E   
+    #        |   X
     #        I
-    print(test_graph.bfs("Diana")) #D, then EFG in some order, then HI in some order, no duplicates
-    print(test_graph.bfs("Henrietta")) #H, then G, then DE in some order, then FI in some order, no duplicates
-    assert test_graph.bfs("Xochitl") == []
+    print(f"BFS with Diana:  {test_graph.bfs("Diana")}") 
+    print(f"BFS with Henrietta:  {test_graph.bfs("Henrietta")}")
+    print(f"BFS with disconnected node Xochitl:  {test_graph.bfs("Xochitl")}")
+    print(f"BFS with no specified start node:  {test_graph.bfs()}")
+    assert test_graph.bfs("Steve") == [] #start node not in graph
 
-    print(test_graph.dfs("Fergie")) #FDEIGH or FDGHEI
-    print(test_graph.dfs("Georgiana")) #starts with G, contains "D -> F" and "E -> I", no dupes
-    assert test_graph.dfs("Xochitl") == []
+    print(f"Fergie's friends (BFS): {test_graph.limited_bfs("Fergie", 1)}")
+    print(f"Diana's friends (BFS): {test_graph.limited_bfs("Diana", 1)}")
+    print(f"Georgiana's six degrees of separation including herself (BFS): {test_graph.limited_bfs("Georgiana", 6, True)}")
+    print(f"Fergie's friends (DFS): {test_graph.limited_dfs("Fergie", 1)}")
+    print(f"Diana's friends (DFS): {test_graph.limited_dfs("Diana", 1)}")
+    print(f"Georgiana's six degrees of separation including herself (DFS): {test_graph.limited_dfs("Georgiana", 6, True)}")
+    assert test_graph.limited_bfs("Xochitl", 2) == []
+    assert test_graph.limited_bfs("Steve", 3) == [] #start node not in graph
+    assert test_graph.limited_dfs("Xochitl", 2) == []
+    assert test_graph.limited_dfs("Steve", 3) == [] #start node not in graph
+
+    print(f"DFS with Fergie: {test_graph.dfs("Fergie")}") 
+    print(f"DFS with Georgiana: {test_graph.dfs("Georgiana")}") 
+    print(f"DFS with disconnected node Xochitl: {test_graph.dfs("Xochitl")}") 
+    print(f"DFS with no specified start node: {test_graph.dfs()}") 
+    assert test_graph.dfs("Steve") == [] #start node not in graph 
 
     test_graph.remove_vertex("Diana")
-    print(test_graph.get_vertices())
-    print(test_graph.get_edges())
-    print(test_graph.bfs("Georgiana"))
-    print(test_graph.dfs("Fergie"))
+    # test graph now looks like:
+    #  F       G---H
+    #         /
+    #        E   
+    #        |   X
+    #        I
+    print(f"List of vertices after Diana removed: {test_graph.get_vertices()}")
+    print(f"List of edges after Diana removed: {test_graph.get_edges()}")
+    print(f"BFS with Georgiana after Diana removed: {test_graph.bfs("Georgiana")}")
 
     test_graph.clear()
     assert test_graph.is_empty()
+    assert test_graph.dfs() == []
+    assert test_graph.bfs("Bob") == []
+
     
 
     
