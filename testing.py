@@ -84,6 +84,9 @@ def test_undirected_graph():
 # BEA'S TEST CODE GOES BELOW THE LINE
 #Author: Bea Sauve   Date 12/08/2025   Class: AD325
 from user_profile import UserProfile
+from profile_manager import ProfileManager
+import unittest
+from unittest.mock import patch
 def test_user_profile():
     user = UserProfile('Bea', 'Lynnwood', 'In a Relationship',26 ,'Pastry Chef', 'Libra', "Online")
     user.print_details()
@@ -97,6 +100,43 @@ def test_user_profile():
     user.set_relationship('Married')
     user.print_details()
 
+#unittest patch to excecute when asked for a reprompt due to invalid name
+def test_profile_manager():
+    print('\nTesting Profile Manager')
+    manager = ProfileManager()
+    manager.add_profile('Bea', 'Lynnwood', 'In a Relationship',26 ,'Pastry Chef', 'Libra', "Online")
+    manager.add_profile('Cow', 'Farm', 'Single', 5, 'Companion', 'Tarus', 'Offline')
+    manager.add_profile('John', "Seattle", 'Single', 89,"Programmer", "Pisces",'Offline')
+    manager.add_profile('Kate', "Amsterdam", 'Married', 17,"Explorer", "Virgo",'Offline')
+    print(manager.get_profile('Cow'))
+    #unittest patch to excecute when asked for a reprompt due to invalid name
+    with patch("builtins.input", side_effect = ["Bea"]):
+        print(manager.get_profile('Leah'))
+    manager.connect_profiles('Bea','Cow')
+    manager.connect_profiles('Kate',"Bea")
+    with patch("builtins.input", side_effect = ["BFS"]):
+        print(manager.display_profiles())
+    with patch("builtins.input", side_effect = ["DFS"]):
+        print(manager.display_profiles())
+    manager.display_profile_details('Kate')
+    #display friends of friend
+    with patch("builtins.input", side_effect = ["DFS"]):
+        #should return only Bea
+        print(manager.get_friends_of_friends("Kate"))
+        #display friends of friend
+    with patch("builtins.input", side_effect = ["BFS"]):
+        #should return only Bea
+        print(manager.get_friends_of_friends("Kate"))
+    #test csv reader
+    manager.read_profiles_from_csv("data\\test.csv")
+    with patch("builtins.input", side_effect = ["DFS"]):
+        #TODO: Currently doesnt display due to limitations on BFS and DFS
+        print(manager.display_profiles())
+    #remove a user from the profile manager
+    manager.remove_profile("Bea")
+    #Should display Kate, John, Cow (not in that order)
+    with patch("builtins.input", side_effect = ["DFS"]):
+        print(manager.display_profiles())
 
 
 # ------------------------------------ #
@@ -110,6 +150,8 @@ if __name__ == "__main__":
     test_undirected_graph()
 
     #BEA'S TEST METHOD CALLS GO HERE:
+    print( "\nBea's Test Code\n----------------------------\n")
     test_user_profile()
+    test_profile_manager()
 
     print("All tests passed!")
