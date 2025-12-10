@@ -299,5 +299,41 @@ class UndirectedGraph:
 
         return traversal_order
 
+    def limited_dfs(self, start, maximum_depth, include_self=False):
+        """Traverses the graph to a maximum depth using a depth-first search. Does not fully traverse unconnected graphs.
+
+        Runs in linear time (O(n + m) for n connected vertices and m edges.)
+        
+        :type any: start, the key for the starting vertex.
+        :type int: maximum depth, the number of levels of adjacency to traverse.
+        :type boolean: include_self. False by default. If True, the method will include the start node in the return list.
+        :rtype list: A list of connected keys in the depth-first order visited.
+        """
+
+        #If the start node is not in the graph, return an empty list.
+        if not self.contains(start): 
+            return []
+        
+        visited_set = set()
+        traversal_order = []
+
+        #Start with the start node and a depth of 0.
+        vertex_stack = [(start, 0)] 
+
+        #Traverse through the connected component of the graph to the maximum depth (or as far as possible).
+        while len(vertex_stack) != 0:
+            current, current_depth = vertex_stack.pop()
+
+            #Skip nodes already visited or exceeding maximum depth.
+            if current not in visited_set and current_depth <= maximum_depth:
+                visited_set.add(current)
+                if include_self or current_depth > 0: #Start node will not be added to the list unless include_self is True.
+                    traversal_order.append(current)
+
+                #Push neighbors with incremented depth value.
+                for nbr in self.get_vertex(current).get_connections(): 
+                    vertex_stack.append((nbr, current_depth + 1)) #push to the top of the stack
+
+        return traversal_order
     
 

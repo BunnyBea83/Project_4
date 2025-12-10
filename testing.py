@@ -58,10 +58,16 @@ def test_undirected_graph():
     print(f"BFS with no specified start node:  {test_graph.bfs()}")
     assert test_graph.bfs("Steve") == [] #start node not in graph
 
-    print(f"Fergie's friends: {test_graph.limited_bfs("Fergie", 1)}")
-    print(f"Georgiana's six degrees of separation including herself: {test_graph.limited_bfs("Georgiana", 6, True)}")
+    print(f"Fergie's friends (BFS): {test_graph.limited_bfs("Fergie", 1)}")
+    print(f"Diana's friends (BFS): {test_graph.limited_bfs("Diana", 1)}")
+    print(f"Georgiana's six degrees of separation including herself (BFS): {test_graph.limited_bfs("Georgiana", 6, True)}")
+    print(f"Fergie's friends (DFS): {test_graph.limited_dfs("Fergie", 1)}")
+    print(f"Diana's friends (DFS): {test_graph.limited_dfs("Diana", 1)}")
+    print(f"Georgiana's six degrees of separation including herself (DFS): {test_graph.limited_dfs("Georgiana", 6, True)}")
     assert test_graph.limited_bfs("Xochitl", 2) == []
     assert test_graph.limited_bfs("Steve", 3) == [] #start node not in graph
+    assert test_graph.limited_dfs("Xochitl", 2) == []
+    assert test_graph.limited_dfs("Steve", 3) == [] #start node not in graph
 
     print(f"DFS with Fergie: {test_graph.dfs("Fergie")}") 
     print(f"DFS with Georgiana: {test_graph.dfs("Georgiana")}") 
