@@ -58,6 +58,11 @@ def test_undirected_graph():
     print(f"BFS with no specified start node:  {test_graph.bfs()}")
     assert test_graph.bfs("Steve") == [] #start node not in graph
 
+    print(f"Fergie's friends: {test_graph.limited_bfs("Fergie", 1)}")
+    print(f"Georgiana's six degrees of separation including herself: {test_graph.limited_bfs("Georgiana", 6, True)}")
+    assert test_graph.limited_bfs("Xochitl", 2) == []
+    assert test_graph.limited_bfs("Steve", 3) == [] #start node not in graph
+
     print(f"DFS with Fergie: {test_graph.dfs("Fergie")}") 
     print(f"DFS with Georgiana: {test_graph.dfs("Georgiana")}") 
     print(f"DFS with disconnected node Xochitl: {test_graph.dfs("Xochitl")}") 
@@ -65,6 +70,12 @@ def test_undirected_graph():
     assert test_graph.dfs("Steve") == [] #start node not in graph 
 
     test_graph.remove_vertex("Diana")
+    # test graph now looks like:
+    #  F       G---H
+    #         /
+    #        E   
+    #        |   X
+    #        I
     print(f"List of vertices after Diana removed: {test_graph.get_vertices()}")
     print(f"List of edges after Diana removed: {test_graph.get_edges()}")
     print(f"BFS with Georgiana after Diana removed: {test_graph.bfs("Georgiana")}")
@@ -113,10 +124,10 @@ def test_user_profile():
 if __name__ == "__main__":
 
     #LEAH'S TEST METHOD CALLS GO HERE:
-    #test_vertex()
+    test_vertex()
     test_undirected_graph()
 
     #BEA'S TEST METHOD CALLS GO HERE:
-    #test_user_profile()
+    test_user_profile()
 
     print("All tests passed!")

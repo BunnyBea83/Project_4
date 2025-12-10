@@ -1,7 +1,4 @@
-# graph_adt was written by Leah
-
-#CHANGELOG:
-#get_vertices now returns a list of keys instead of a list of Vertex objects
+# graph_adt was written by Leah Gibbons
 
 from linked_adts import LinkedQueue
 from linked_adts import LinkedDictionary
@@ -95,9 +92,7 @@ class UndirectedGraph:
             nbr_vertex.remove_neighbor(key)
         
         #remove vertex
-        self.vertices.remove(key)
-
-                        
+        self.vertices.remove(key)                    
      
     def get_vertex(self, key):
         """Retrieves the Vertex object associated with the given key.
@@ -144,7 +139,8 @@ class UndirectedGraph:
     def is_empty(self):
         """Checks if the graph is empty.
         
-        :rtype boolean: True if the graph is empty, False otherwise."""
+        :rtype boolean: True if the graph is empty, False otherwise.
+        """
         return self.vertices.get_size() == 0
 
     def size(self):
@@ -169,9 +165,8 @@ class UndirectedGraph:
         return edges
 
 
-
     def bfs(self, start=None): 
-        """Traverses the graph in a breadth-first search. Includes unconnected vertices.
+        """Completely traverses the graph in a breadth-first search. Works on unconnected graphs.
 
         Runs in linear time (O(n + m) for n vertices and m edges.)
         
@@ -209,22 +204,63 @@ class UndirectedGraph:
             #Traverse through one connected component of the graph.
             while not vertex_queue.is_empty():
                 current = vertex_queue.dequeue() 
-                discovered_set.add(current)
-                traversal_order.append(current)
-                for nbr in self.get_vertex(current).get_connections(): 
-                    if nbr not in discovered_set: #discover and enqueue any undiscovered neighbors
-                        discovered_set.add(nbr)
-                        vertex_queue.enqueue(nbr) 
+                if current not in discovered_set: #If the node has already been processed, discard it without doing anything
+                    discovered_set.add(current)
+                    traversal_order.append(current)
+                    for nbr in self.get_vertex(current).get_connections(): 
+                        if nbr not in discovered_set: #discover and enqueue any undiscovered neighbors
+                            vertex_queue.enqueue(nbr) 
 
         return traversal_order
 
+    def limited_bfs(self, start, maximum_depth, include_self=False):
+        """Traverses the graph to a maximum depth using a breadth-first search. Does not fully traverse unconnected graphs.
+
+        Runs in linear time (O(n + m) for n connected vertices and m edges.)
+        
+        :type any: start, the key for the starting vertex.
+        :type int: maximum depth, the number of levels of adjacency to traverse.
+        :type boolean: include_self. False by default. If True, the method will include the start node in the return list.
+        :rtype list: A list of connected keys in the breadth-first order visited.
+        """
+        #If the start node is not in the graph, return an empty list.
+        if not self.contains(start):
+            return []
+
+        discovered_set = set() 
+        traversal_order = []
+        vertex_queue = LinkedQueue()
+
+        #start with the start node and a depth of 0
+        vertex_queue.enqueue((start, 0))
+
+        #Traverse through the connected component of the graph to the maximum depth (or as far as possible).
+        while not vertex_queue.is_empty():
+            current, current_depth = vertex_queue.dequeue() 
+
+            if current not in discovered_set:
+                discovered_set.add(current)
+                if include_self or current_depth > 0: #Start node will not be added to the list unless include_self is True.
+                    traversal_order.append(current)
+
+                #Stop adding neighbors once we reach maximum depth.
+                if current_depth == maximum_depth:
+                    continue
+
+                #Discover and enqueue any undiscovered neighbors with incremented depth value.
+                for nbr in self.get_vertex(current).get_connections(): 
+                    if nbr not in discovered_set: 
+                        vertex_queue.enqueue((nbr, current_depth + 1)) 
+
+
+        return traversal_order
 
     def dfs(self, start=None):
-        """Traverses the graph in a depth-first search.
+        """Completely traverses the graph in a depth-first search. Works on unconnected graphs.
         
         Runs in linear time (O(n + m) for n vertices and m edges.)
         
-        :type any: start, the key for the starting vertex.
+        :type any: start, the key for the starting vertex. If none is specified, a start node will be chosen.
         :rtype list: A list of keys in the depth-first order visited.
         """
         #Create a list of keys in the graph.
@@ -254,12 +290,12 @@ class UndirectedGraph:
             #Traverse through one connected component of the graph.
             while len(vertex_stack) != 0:
                 current = vertex_stack.pop()
-                visited_set.add(current)
-                traversal_order.append(current)
-                for nbr in self.get_vertex(current).get_connections(): 
-                    if nbr not in visited_set:
-                        visited_set.add(nbr)
-                        vertex_stack.append(nbr) #push to the top of the stack
+                if current not in visited_set:
+                    visited_set.add(current)
+                    traversal_order.append(current)
+                    for nbr in self.get_vertex(current).get_connections(): 
+                        if nbr not in visited_set:
+                            vertex_stack.append(nbr) #push to the top of the stack
 
         return traversal_order
 
