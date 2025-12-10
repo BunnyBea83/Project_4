@@ -38,26 +38,37 @@ class ProfileManager:
        
     
     def remove_profile(self, name):
-        '''TODO: Figure this out'''
-        ''' Remove a users profile from all manager locations.
+        ''' Remove a users profile from all manager locations and friends they are attached to.
 
         :type string: name, Users' name which will be removed from all structures.
         '''
-        #Verify Users' name, then remove data from all structures
+        #Verify Users' name
         val_user = self.verify_user(name)
+        #Remove user as a friend from their friends' lists
+        friends = self.dict_manager.get_value(val_user).get_friends()
+        for friend in friends:
+            self.dict_manager.get_value(friend).remove_friend(val_user)
+        #Remove the user from the Profile Manager
         self.dict_manager.remove(val_user)
+        self.graph_manager.remove_vertex(val_user)
         #insert command for removing vertices and disconnecting edges
         print(f'User: {name} has been deleted.')
         
-    def connect_profiles(self, name1, name2, weight=0):
+    def connect_profiles(self, name1, name2):
         '''Connect profile of one user to another via vertices and edges.
         
         :type string: name1, name2, Names of both users to connect.
         '''
-        self.graph_manager.add_edge(name1, name2, weight = 0)
+        #Initialize profiles to add eachother as friends
+        user1 = self.dict_manager.get_value(name1)
+        user2 = self.dict_manager.get_value(name2)
+        #Add each user as friends of eachother
+        user1.add_friend(name2)
+        user2.add_friend(name1)
+        #Indicate friendship by adding edges to their vertices
+        self.graph_manager.add_edge(name1, name2)
 
     def display_profiles(self):
-        '''TODO: figure out where to start display from and if search methods return a list.'''
         '''Display all Profiles present in manager.
         
         :rtype list: List of all user profiles displayed in chosen search order.
@@ -65,11 +76,11 @@ class ProfileManager:
         #Prompt and validate user input
         choice = self.search_prompt()
         if choice == 'bfs' or choice == 'breadth-first-search':
-            # Display all the profiles in bfs order
-            return self.graph_manager.bfs()
+            # Display all the profiles in bfs order, starting at first key in dictionary
+            return self.graph_manager.bfs(list(self.dict_manager.get_keys())[0])
         else:
-            # Display all profiles in dfs order
-            return self.graph_manager.dfs()
+            # Display all profiles in dfs order, starting at first key in dictionary
+            return self.graph_manager.dfs(list(self.dict_manager.get_keys())[0])
         
 
     def display_profile_details(self, name):
@@ -86,7 +97,7 @@ class ProfileManager:
         return user.print_details()
             
     def get_friends_of_friends(self, name):
-        ''' Obtain a list of friends of a users friends
+        ''' Obtain a list of friends of a users friend
 
         :type string: name, Name of user to obtain friends of.
         :rtype list: List of friends of users friends'''
@@ -94,24 +105,22 @@ class ProfileManager:
         val_name = self.verify_user(name)
         #Prompt user for search type
         choice = self.search_prompt()
-        #Access user profile
-        user = self.manager.get_vertex(val_name)
-        #get users friends
-        friends = user.get_friends()
-        #loop get friends of friend, use search based on users request
-        for friend in friends:
-            if choice == 'bfs' or choice == 'breadth-first-search':
-                return self.manager.bfs(friend)
-            else:
-                return self.manager.dfs(friend)
+        #Traverse based on choice given
+        if choice == 'bfs' or choice == 'breadth-first-search':
+            return self.graph_manager.bfs(val_name)
+        else:
+            return self.graph_manager.dfs(val_name)
 
     
 
     def read_profiles_from_csv(self, file_path):
-        #TODO: figure out adding user and friends
+        '''Given a file path, read the file, create user profiles, and add them to the profile manager
+        
+        :type file: file_path, file location to read user data from'''
+      
         try:
             with open(file_path, mode = 'r', newline = '') as file:
-                csvfile = csv.DictReader(file, delimiter='|')
+                csvfile = csv.DictReader(file, delimiter=',')
                 #keep track of any errors that may arise
                 failed_rows = []
                 # Iterate through csv, parsing information, starting with the second line to skip headers
@@ -128,18 +137,17 @@ class ProfileManager:
                         occupation = row['occupation']
                         sign = row['astrological_sign']
                         #create a list of friends, separated by the delimeter
-                        friends = row['friends'].split('|') 
-
-                        new_user = UserProfile(name,location,relationship,age,occupation, sign, status)
+                        friend_cell = row.get("friends", "") or ""
+                        friends = [f.strip() for f in friend_cell.split('|') if f.strip()]
+                        #Add user to Profile Manager
+                        self.add_profile(name,location,relationship,age,occupation, sign, status)
                         # Add a photo to profile if one was present in csv
                         if picture is not None:
-                            new_user.add_photo(picture)
+                            self.dict_manager.get_value(name).add_photo(picture)
                         #add friend to users friend list and connect their vertices in graph
                         for friend in friends:
-                            new_user.add_friend(friend)
-                            self.manager.add_edge(new_user.get_name,friend)
-                        #add user to graph
-                        self.manager.add_vertex(new_user)
+                            if self.graph_manager.contains(friend):
+                                self.connect_profiles(name, friend)
                     #If there's a failed conversion or the column name isnt present, not the error
                     except(ValueError,KeyError) as e:
                         failed_rows.append((index, row, str(e)))
@@ -150,8 +158,7 @@ class ProfileManager:
         except Exception as e:
             raise RuntimeError(f'Failed to build from CSV: {e}')
         if failed_rows:
-            print(failed_rows)         
-                        
+            print(failed_rows)                              
 
     def create_user_graph(self, current_user, depth=1):
         '''Display graph of user and their friend connections.
@@ -186,7 +193,7 @@ class ProfileManager:
         valid_choice = {'bfs', 'breadth-first-search', 'dfs', 'depth-first-search'}
         #Keep looping till a valid input is made
         while True:
-            choice = input("Choose display order: 'Breadth-First-Search' or 'Depth-First-Search'? ('BFS' and 'DFS' also accepted)").strip().lower()
+            choice = input("Choose display order: 'Breadth-First-Search' or 'Depth-First-Search'? ('BFS' and 'DFS' also accepted): ").strip().lower()
             #Verify their choice resides within predetermined choice types.
             if choice in valid_choice:
                 return choice
