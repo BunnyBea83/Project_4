@@ -1,0 +1,4 @@
+name,status,picture,location,relationship_status,age,occupation,astrological_sign,friends
+Alice,Feeling happy,alice.jpg,Seattle,Single,30,Engineer,Aries,Bob|Charlie
+Bob,Excited for the weekend,,San Francisco,Married,35,Artist,Taurus,Alice|Dana
+Charlie,Working hard,,New York,Single,25,Teacher,Gemini,Alice|Eve
