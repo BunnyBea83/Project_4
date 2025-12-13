@@ -112,7 +112,7 @@ from profile_manager import ProfileManager
 import unittest
 from unittest.mock import patch
 def test_user_profile():
-    user = UserProfile('Bea', 'Lynnwood', 'In a Relationship',26 ,'Pastry Chef', 'Libra', "Online")
+    user = UserProfile('Bea', 'Lynnwood', 'In a Relationship',26 ,'Pastry Chef', 'Libra', "Coding like a gamer.")
     user.print_details()
     user.add_photo('Bea.jpg')
     user.add_friend("Leah")
@@ -128,10 +128,10 @@ def test_user_profile():
 def test_profile_manager():
     print('\nTesting Profile Manager')
     manager = ProfileManager()
-    manager.add_profile('Bea', 'Lynnwood', 'In a Relationship',26 ,'Pastry Chef', 'Libra', "Online")
-    manager.add_profile('Cow', 'Farm', 'Single', 5, 'Companion', 'Tarus', 'Offline')
-    manager.add_profile('John', "Seattle", 'Single', 89,"Programmer", "Pisces",'Offline')
-    manager.add_profile('Kate', "Amsterdam", 'Married', 17,"Explorer", "Virgo",'Offline')
+    manager.add_profile('Bea', 'Lynnwood', 'In a Relationship',26 ,'Pastry Chef', 'Libra', "Coding like a gamer.")
+    manager.add_profile('Cow', 'Farm', 'Single', 5, 'Companion', 'Tarus', 'Eating Grass')
+    manager.add_profile('John', "Seattle", 'Single', 89,"Programmer", "Pisces",'Party Time')
+    manager.add_profile('Kate', "Amsterdam", 'Married', 17,"Explorer", "Virgo",'Reading a Book')
     print(manager.get_profile('Cow'))
     #unittest patch to excecute when asked for a reprompt due to invalid name
     with patch("builtins.input", side_effect = ["Bea"]):

@@ -15,6 +15,7 @@ class UserProfile:
         self.status = status
         self.friends = []
         self.photo = "Photo not avalible"
+        self.activity = "Offline"
 
     def get_name(self):
         ''' Obtiain Users name.
@@ -96,15 +97,22 @@ class UserProfile:
             return
         print("Invalid Status. Please choose: 1) Single, 2) In a Relationship, 3) Married")
 
-    def set_status(self, status= bool):
+    def set_status(self, status):
         '''Set users activity status
         
         :type boolean: True if user is online, False if offline
         '''
-        if status == True:
-            self.status = "Online"
+        self.staus = status
+    
+    def set_activity(self, activity = bool):
+        '''Set the user activity to 'Online' or 'Offline
+        
+        :type boolean: activity, indicates whether the user is actively online or not
+        '''
+        if activity == True:
+            self.activity = 'Online'
         else:
-            self.status = "Offline"
+            self.activity = 'Offline'
 
     def get_friends(self):
         '''Obtain all friends in friends list
@@ -135,10 +143,10 @@ class UserProfile:
         '''
         print(
             f"Image: {self.photo}\n"
-            f"Status: {self.status}\n"
-            f"Name: {self.name}\n"
-            f"Age: {self.age:<5} Occupation: {self.occupation:<22} Location: {self.location}\n"
-            f"Relationship Status: {self.relationship_status:<24} Astrological Sign: {self.astrological_sign}\n"
+            f"Status: {self.status:<18} Currently: {self.activity}\n"
+            f"Name: {self.name:<20} Relationship Status: {self.relationship_status} \n"
+            f"Age: {self.age:<21} Astrological Sign: {self.astrological_sign}\n"
+            f"Occupation: {self.occupation:<14} Location: {self.location}\n"
             f"Friends List: {self.friends}"
         )
 
