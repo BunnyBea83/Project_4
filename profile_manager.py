@@ -30,11 +30,9 @@ class ProfileManager:
         '''Obtain user profile from the profile manager
 
         :type string: name, Users' name to obtain data from.
-        :rtype any: profile(vertex), Users profile stored in the undirected graph manager, None if not valid name.
+        :rtype any: profile(vertex), Users profile stored in the undirected graph manager.
         '''
-        #Verify user name, return their data if found.
-        val_user = self.verify_user(name)
-        return self.dict_manager.get_value(val_user)
+        return self.dict_manager.get_value(name)
        
     
     def remove_profile(self, name):
@@ -42,15 +40,13 @@ class ProfileManager:
 
         :type string: name, Users' name which will be removed from all structures.
         '''
-        #Verify Users' name
-        val_user = self.verify_user(name)
         #Remove user as a friend from their friends' lists
-        friends = self.dict_manager.get_value(val_user).get_friends()
+        friends = self.dict_manager.get_value(name).get_friends()
         for friend in friends:
-            self.dict_manager.get_value(friend).remove_friend(val_user)
+            self.dict_manager.get_value(friend).remove_friend(name)
         #Remove the user from the Profile Manager
-        self.dict_manager.remove(val_user)
-        self.graph_manager.remove_vertex(val_user)
+        self.dict_manager.remove(name)
+        self.graph_manager.remove_vertex(name)
         #insert command for removing vertices and disconnecting edges
         print(f'User: {name} has been deleted.')
         
@@ -68,48 +64,40 @@ class ProfileManager:
         #Indicate friendship by adding edges to their vertices
         self.graph_manager.add_edge(name1, name2)
 
-    def display_profiles(self):
+    def display_profiles(self, search_type = bool):
         '''Display all Profiles present in manager.
         
         :rtype list: List of all user profiles displayed in chosen search order.
         '''
-        #Prompt and validate user input
-        choice = self.search_prompt()
-        if choice == 'bfs' or choice == 'breadth-first-search':
+        if search_type == True:
             # Display all the profiles in bfs order, starting at first key in dictionary
             return self.graph_manager.bfs(list(self.dict_manager.get_keys())[0])
-        else:
+        elif search_type == False:
             # Display all profiles in dfs order, starting at first key in dictionary
             return self.graph_manager.dfs(list(self.dict_manager.get_keys())[0])
         
 
     def display_profile_details(self, name):
-        ''' If user exists in directory, display their profile details.
+        ''' Display users profile details.
 
         :type string: name, Name of user to display information of.
         :rtype string: String of users information
         '''
-        #Ensure the name is of a valid user
-        val_user = self.verify_user(name)
         #Store user information
-        user = self.dict_manager.get_value(val_user)
+        user = self.dict_manager.get_value(name)
         #Print user information
         return user.print_details()
             
-    def get_friends_of_friends(self, name):
+    def get_friends_of_friends(self, name, search_type=bool):
         ''' Obtain a list of friends of a users friend
 
         :type string: name, Name of user to obtain friends of.
         :rtype list: List of friends of users friends'''
-        #Validate name given
-        val_name = self.verify_user(name)
-        #Prompt user for search type
-        choice = self.search_prompt()
         #Traverse based on choice given
-        if choice == 'bfs' or choice == 'breadth-first-search':
-            return self.graph_manager.limited_bfs(val_name, 1)
-        else:
-            return self.graph_manager.limited_dfs(val_name, 1)
+        if search_type == True:
+            return self.graph_manager.limited_bfs(name, 1)
+        elif search_type == False:
+            return self.graph_manager.limited_dfs(name, 1)
 
     
 
@@ -191,34 +179,14 @@ class ProfileManager:
             friend_vertex = self.graph_manager.get_vertex(friend)
             self.__add_nodes(dot, friend_vertex, visited)
     
-    def search_prompt(self):
-        '''Helper method: Verify users search choice.
+    def contains_profile(self, profile):
+        '''Method that returns whether a profile exists within the manager
         
-        :rtype string: choice, users validated search type choice.
-        '''
-        #Predetermined choice types
-        valid_choice = {'bfs', 'breadth-first-search', 'dfs', 'depth-first-search'}
-        #Keep looping till a valid input is made
-        while True:
-            choice = input("Choose display order: 'Breadth-First-Search' or 'Depth-First-Search'? ('BFS' and 'DFS' also accepted): ").strip().lower()
-            #Verify their choice resides within predetermined choice types.
-            if choice in valid_choice:
-                return choice
-            #Prompt user if invalid input given.
-            print("Invalid Input: Please enter 'BFS', 'DFS', 'Breadth-First-Search' or 'Depth-First-Search'")
-    
-    def verify_user(self, name):
-        '''Helper Method: Verify the user exists within the directory. Prompt if user isn't in directory
-
-        :type string: name, Name of user to varify.
-        :rtype boolean: True if user found, False otherwise.
-        '''
-        while True:
-            user = (name or input("enter a User's name: ")).strip()
-            if user in self.dict_manager.get_keys():
-                return user
-            print(f'User: {user} does not exist within directory. Please enter a valid name.')
-            #Force Reprompt
-            name = None
+        :type any: profile, a users profile
+        :rtype boolean: True if the profile exists, False otherwise'''
+        if profile in self.dict_manager.get_keys():
+            return True
+        else:
+            return False
         
             
