@@ -32,7 +32,12 @@ class ProfileManager:
         :type string: name, Users' name to obtain data from.
         :rtype any: profile(vertex), Users profile stored in the undirected graph manager.
         '''
-        return self.dict_manager.get_value(name)
+        if self.contains_profile(name):
+            return self.dict_manager.get_value(name)
+        #If profiles aren't in directory
+        else:
+            print(f'{name}: not in directory.')
+            return None
        
     
     def remove_profile(self, name):
@@ -40,41 +45,53 @@ class ProfileManager:
 
         :type string: name, Users' name which will be removed from all structures.
         '''
-        #Remove user as a friend from their friends' lists
-        friends = self.dict_manager.get_value(name).get_friends()
-        for friend in friends:
-            self.dict_manager.get_value(friend).remove_friend(name)
-        #Remove the user from the Profile Manager
-        self.dict_manager.remove(name)
-        self.graph_manager.remove_vertex(name)
-        #insert command for removing vertices and disconnecting edges
-        print(f'User: {name} has been deleted.')
+        if self.contains_profile(name):
+            #Remove user as a friend from their friends' lists
+            friends = self.dict_manager.get_value(name).get_friends()
+            for friend in friends:
+                self.dict_manager.get_value(friend).remove_friend(name)
+            #Remove the user from the Profile Manager
+            self.dict_manager.remove(name)
+            self.graph_manager.remove_vertex(name)
+            #insert command for removing vertices and disconnecting edges
+            print(f'User: {name} has been deleted.')
+        #If profiles aren't in directory
+        else:
+            print(f'{name}: not in directory.')
+            return None
         
     def connect_profiles(self, name1, name2):
         '''Connect profile of one user to another via vertices and edges.
         
         :type string: name1, name2, Names of both users to connect.
         '''
-        #Initialize profiles to add eachother as friends
-        user1 = self.dict_manager.get_value(name1)
-        user2 = self.dict_manager.get_value(name2)
-        #Add each user as friends of eachother
-        user1.add_friend(name2)
-        user2.add_friend(name1)
-        #Indicate friendship by adding edges to their vertices
-        self.graph_manager.add_edge(name1, name2)
+        if self.contains_profile(name1) and self.contains_profile(name2):
+            #Initialize profiles to add eachother as friends
+            user1 = self.dict_manager.get_value(name1)
+            user2 = self.dict_manager.get_value(name2)
+            #Add each user as friends of eachother
+            user1.add_friend(name2)
+            user2.add_friend(name1)
+            #Indicate friendship by adding edges to their vertices
+            self.graph_manager.add_edge(name1, name2)
+        
+        else:
+            print(f'{name1} in directory: {self.contains_profile(name1)}  {name2} in directory: {self.contains_profile(name2)}')
 
-    def display_profiles(self, search_type = bool):
+    def display_profiles(self, search_type = ''):
         '''Display all Profiles present in manager.
         
         :rtype list: List of all user profiles displayed in chosen search order.
         '''
-        if search_type == True:
+        if search_type == 'bfs':
             # Display all the profiles in bfs order, starting at first key in dictionary
             return self.graph_manager.bfs(list(self.dict_manager.get_keys())[0])
-        elif search_type == False:
+        elif search_type == 'dfs':
             # Display all profiles in dfs order, starting at first key in dictionary
             return self.graph_manager.dfs(list(self.dict_manager.get_keys())[0])
+        #If invalid input
+        else:
+            return None
         
 
     def display_profile_details(self, name):
@@ -88,16 +105,24 @@ class ProfileManager:
         #Print user information
         return user.print_details()
             
-    def get_friends_of_friends(self, name, search_type=bool):
+    def get_friends_of_friends(self, name, search_type=''):
         ''' Obtain a list of friends of a users friend
 
         :type string: name, Name of user to obtain friends of.
         :rtype list: List of friends of users friends'''
+        if self.contains_profile(name):
         #Traverse based on choice given
-        if search_type == True:
-            return self.graph_manager.limited_bfs(name, 1)
-        elif search_type == False:
-            return self.graph_manager.limited_dfs(name, 1)
+            if search_type == 'bfs':
+                return self.graph_manager.limited_bfs(name, 1)
+            elif search_type == 'dfs':
+                return self.graph_manager.limited_dfs(name, 1)
+            #If incorrect search type
+            else:
+                print('Incorrect search type.')
+                return None
+        else:
+            print(f'{name}: not in directory.')
+            return None
 
     
 
