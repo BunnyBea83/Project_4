@@ -56,7 +56,7 @@ class ProfileManager:
             self.dict_manager.remove(name)
             self.graph_manager.remove_vertex(name)
             #insert command for removing vertices and disconnecting edges
-            print(f'User: {name} has been deleted.')
+            return True
         #If profiles aren't in directory
         else:
             return False
