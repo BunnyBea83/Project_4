@@ -20,11 +20,15 @@ class ProfileManager:
         :type string: name, location, relationship_status, occupation, atrological_sign, status, Information about the user.
         :type int: age, The users' age
         '''
-        user = UserProfile(name, location, relationship_status,age, occupation, astrological_sign, status)
-        # Add the profile to dictionary manager
-        self.dict_manager.add(name, user)
-        # Add the profile to graph manager
-        self.graph_manager.add_vertex(name)
+        if not self.contains_profile(name):
+            user = UserProfile(name, location, relationship_status,age, occupation, astrological_sign, status)
+            # Add the profile to dictionary manager
+            self.dict_manager.add(name, user)
+            # Add the profile to graph manager
+            self.graph_manager.add_vertex(name)
+        else:
+            print(f'User {name}: already exists')
+            return None
 
     def get_profile(self, name):
         '''Obtain user profile from the profile manager
@@ -104,6 +108,28 @@ class ProfileManager:
         user = self.dict_manager.get_value(name)
         #Print user information
         return user.print_details()
+    
+    def change_name(self,former_name, new_name):
+        '''Alter a users name, name cannot already exist in manager
+        
+        :type string: former_name, Name of the user to alter
+        :type string: new_name, Name to change the account name into
+        '''
+        if self.contains_profile(former_name):
+            profile = self.dict_manager.get_value(former_name)
+            if not self.contains_profiles(new_name):
+                profile.set_name(new_name)
+                for friends in profile.get_friends():
+                    friend = self.dict_manager.get_value(friends)
+                    friend.remove_friend(former_name)
+                    friend.add_friend(new_name)
+                self.graph_manager.rename_vertex(former_name,new_name)
+            else:
+                print(f'User: {new_name} is taken. Please enter a different name.')
+                return None  
+        else:
+            print(f'User: {former_name} is not in directory.')
+            return None
             
     def get_friends_of_friends(self, name, search_type=''):
         ''' Obtain a list of friends of a users friend
