@@ -92,7 +92,40 @@ class UndirectedGraph:
             nbr_vertex.remove_neighbor(key)
         
         #remove vertex
-        self.vertices.remove(key)                    
+        self.vertices.remove(key)    
+
+    def rename_vertex(self, old_key, new_key):
+        """Renames a vertex while preserving all connections."""
+        
+        # Validation
+        if not self.contains(old_key):
+            return False
+        if self.contains(new_key):
+            return False
+
+        old_vertex = self.get_vertex(old_key)
+        neighbors = old_vertex.get_connections()
+
+        # Create new vertex
+        new_vertex = Vertex(new_key)
+        self.vertices.add(new_key, new_vertex)
+
+        # Rewire neighbors
+        for nbr_key in neighbors:
+            nbr_vertex = self.get_vertex(nbr_key)
+
+            # Remove old key, add new key
+            nbr_vertex.remove_neighbor(old_key)
+            nbr_vertex.add_neighbor(new_key)
+
+            # Add neighbor to new vertex
+            new_vertex.add_neighbor(nbr_key)
+
+        # Remove old vertex
+        self.vertices.remove(old_key)
+
+        return True
+                
      
     def get_vertex(self, key):
         """Retrieves the Vertex object associated with the given key.
