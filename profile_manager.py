@@ -20,11 +20,14 @@ class ProfileManager:
         :type string: name, location, relationship_status, occupation, atrological_sign, status, Information about the user.
         :type int: age, The users' age
         '''
-        user = UserProfile(name, location, relationship_status,age, occupation, astrological_sign, status)
-        # Add the profile to dictionary manager
-        self.dict_manager.add(name, user)
-        # Add the profile to graph manager
-        self.graph_manager.add_vertex(name)
+        if not self.contains_profile(name):
+            user = UserProfile(name, location, relationship_status,age, occupation, astrological_sign, status)
+            # Add the profile to dictionary manager
+            self.dict_manager.add(name, user)
+            # Add the profile to graph manager
+            self.graph_manager.add_vertex(name)
+        else:
+            return False
 
     def get_profile(self, name):
         '''Obtain user profile from the profile manager
@@ -36,8 +39,7 @@ class ProfileManager:
             return self.dict_manager.get_value(name)
         #If profiles aren't in directory
         else:
-            print(f'{name}: not in directory.')
-            return None
+            return False
        
     
     def remove_profile(self, name):
@@ -57,8 +59,7 @@ class ProfileManager:
             print(f'User: {name} has been deleted.')
         #If profiles aren't in directory
         else:
-            print(f'{name}: not in directory.')
-            return None
+            return False
         
     def connect_profiles(self, name1, name2):
         '''Connect profile of one user to another via vertices and edges.
@@ -76,7 +77,7 @@ class ProfileManager:
             self.graph_manager.add_edge(name1, name2)
         
         else:
-            print(f'{name1} in directory: {self.contains_profile(name1)}  {name2} in directory: {self.contains_profile(name2)}')
+            return False
 
     def display_profiles(self, search_type = ''):
         '''Display all Profiles present in manager.
@@ -104,6 +105,33 @@ class ProfileManager:
         user = self.dict_manager.get_value(name)
         #Print user information
         return user.print_details()
+    
+    def change_name(self,former_name, new_name):
+        '''Alter a users name, name cannot already exist in manager
+        
+        :type string: former_name, Name of the user to alter
+        :type string: new_name, Name to change the account name into
+        '''
+        #Check if name exists
+        if self.contains_profile(former_name):
+            #Access profile
+            profile = self.dict_manager.get_value(former_name)
+            #Modify profile name and name attatched to friends if new name doesn't already exist
+            if not self.contains_profiles(new_name):
+                profile.set_name(new_name)
+                #Modify new name to appear in their firends' friend list
+                for friends in profile.get_friends():
+                    friend = self.dict_manager.get_value(friends)
+                    friend.remove_friend(former_name)
+                    friend.add_friend(new_name)
+                #Modify the name appearing in the graph manager
+                self.graph_manager.rename_vertex(former_name,new_name)
+            #Return false if new name already exists
+            else:
+                return False
+        #Return false if former name doesnt exist
+        else:
+            return False
             
     def get_friends_of_friends(self, name, search_type=''):
         ''' Obtain a list of friends of a users friend
@@ -118,11 +146,10 @@ class ProfileManager:
                 return self.graph_manager.limited_dfs(name, 1)
             #If incorrect search type
             else:
-                print('Incorrect search type.')
-                return None
+                return False
+        #False if name doesn't exist
         else:
-            print(f'{name}: not in directory.')
-            return None
+            return False
 
     
 
