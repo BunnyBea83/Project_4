@@ -1,9 +1,10 @@
 #Written by Leah Gibbons, with contributions and testing from Bea Sauve
 
 from profile_manager import ProfileManager
-PROFILES_DATA_FILE_PATH = "data/profiles.csv"
+PROFILES_DATA_FILE_PATH = "data/profiles.csv" 
 
 def main():
+    """Displays welcome banner and login menu."""
 
     manager = ProfileManager() #ProfileManager and its data will persist across users
     close_program = False
@@ -12,7 +13,11 @@ def main():
     print("*  Welcome to the Glubs Social Media Network!   *")
     print("*-----*-----*-----*-----*-----*-----*-----*-----*")
 
-    while True: #Infinite loop until user enters exit code
+    #Basic loop concept for this menu and other menus in this program:
+    #The menu will display information.
+    #Then the user will be prompted for input which will cause the program to take actions, display more information, and re-prompt for further input.
+    #This process will loop forever until a special user input is received which causes the function to return.
+    while True: 
 
         if close_program:
             print("Goodbye!")
@@ -51,6 +56,10 @@ def main():
     
 
 def login_user(manager):
+    """Prompts the user to enter their name. New users will be required to create a profile.
+    
+    :type ProfileManager: the session's ProfileManager
+    :rtype string: the user's name"""
     username = input(
         "Please enter your name: "
     ).strip().title()
@@ -63,10 +72,14 @@ def login_user(manager):
         if profile_created:
             return username
         else:
-            return ""
+            return "" 
 
 
 def admin_verification():
+    """Password verification for admin logins.
+    
+    :rtype boolean: True if admin credentials were successfully verified, False otherwise.
+    """
     while True:
         print("Administrators are required to enter a PASSWORD.")
         print("(The password is uncrackable)")
@@ -82,11 +95,20 @@ def admin_verification():
 
 
 def display_user_menu(manager, current_user):
+    """Displays menu options for regular users.
+    
+    :type ProfileManager: the session's ProfileManager
+    :type string: current_user, the user who is logged in.
+    :rtype boolean: True if the user chooses to quit the program, False to send them back to the login menu.
+    """
     user_was_deleted = False
     while True: 
+
+        #If the user deleted their profile, force logout.
         if user_was_deleted:
             print("Logging out...")
-            return
+            return False
+        
         print(f"User Menu: Logged in as {current_user}")
         print("1. Modify your profile")
         print("2. Add a friend")
@@ -95,8 +117,11 @@ def display_user_menu(manager, current_user):
         print("5. Delete your profile.")
         print("6. Switch the current user.")
         print("7. Create graph of current user's network.")
-        print("11. Logout (end program)")
-        user_input = input("Select your menu option: ").strip().lower()
+        print("8. Logout (end program)")
+        user_input = input(
+            "Select your menu option: "
+        ).strip().lower()
+
         if user_input == "1":
             # This option can change the current user's name, so we need to always check for that.
             current_user = modify_profile(manager, current_user)
@@ -113,19 +138,28 @@ def display_user_menu(manager, current_user):
             return False
         elif user_input == "7":
             create_user_network_graph(manager, current_user)
-        elif user_input == "11":
+        elif user_input == "8":
             return True
         else:
             print("Sorry, I didn't recognize that input. Please try again: ")
 
 def display_admin_menu(manager, current_user):
+    """Displays menu options for users with admin persmissions.
+    
+    :type ProfileManager: the session's ProfileManager
+    :type string: current_user, the user who is logged in.
+    :rtype boolean: True if the user chooses to quit the program, False to send them back to the login menu.
+    """
 
     user_was_deleted = False
 
     while True: 
+
+        #If the user deleted their profile, force logout.
         if user_was_deleted:
             print("Logging out...")
-            return
+            return False
+        
         print(f"Admin Menu: Logged in as {current_user}")
         print("1. Create a profile")
         print("2. Modify profile")
@@ -143,7 +177,6 @@ def display_admin_menu(manager, current_user):
 
         if user_input == "1": 
             create_profile(manager, current_user, True)
-
         elif user_input == "2":
             #This option can change the current user's name, so we need to always check for that.
             current_user = modify_profile(manager, current_user, True)
@@ -169,45 +202,27 @@ def display_admin_menu(manager, current_user):
         else:
             print("Sorry, I didn't recognize that input. Please try again: ")
 
-def search_prompt(self):
-    '''Helper method: Verify users search choice.
-    
-    :rtype string: choice, users validated search type choice.
-    '''
-    #Predetermined choice types
-    valid_choice = {'bfs', 'breadth-first-search', 'dfs', 'depth-first-search'}
-    #Keep looping till a valid input is made
-    while True:
-        choice = input("Choose display order: 'Breadth-First-Search' or 'Depth-First-Search'? ('BFS' and 'DFS' also accepted): ").strip().lower()
-        #Verify their choice resides within predetermined choice types.
-        if choice in valid_choice:
-            return choice
-        #Prompt user if invalid input given.
-        print("Invalid Input: Please enter 'BFS', 'DFS', 'Breadth-First-Search' or 'Depth-First-Search'")
-
-def verify_user(self, name):
-    '''Helper Method: Verify the user exists within the directory. Prompt if user isn't in directory
-
-    :type string: name, Name of user to varify.
-    :rtype boolean: True if user found, False otherwise.
-    '''
-    while True:
-        user = (name or input("enter a User's name: ")).strip()
-        if user in self.dict_manager.get_keys():
-            return user
-        print(f'User: {user} does not exist within directory. Please enter a valid name.')
-        #Force Reprompt
-        name = None
-
 # ****************
 # | MENU OPTIONS |
 # ****************
 
 def create_profile(manager, current_user, is_admin=False):
+    """Creates a new user profile with several prompts for user input.
+
+    
+    :type ProfileManager: the session's ProfileManager
+    :type string: current_user, the user who is logged in.
+    :type boolean: True if the user has admin permissions, False otherwise.
+    :rtype boolean: True if a user successfully created their own profile, False otherwise.
+    """
+
+    #Regular users can only access this method when creating their own profile.
     if not is_admin and manager.contains_profile(current_user):
         print("A profile already exists under this name.")
         print("Returning to main menu...")
         return False
+    
+    #Admins can create profiles on behalf of others.
     elif manager.contains_profile(current_user):
         print("Admin: You are creating a new profile for someone else.")
         print("Let's get their information!")
@@ -245,14 +260,15 @@ def create_profile(manager, current_user, is_admin=False):
                 if photo != "":
                     new_profile.add_photo(photo)
                     print("Success! Their profile picture has been added")
-                return True
+                return False
             elif user_input == "2":
                 print("Skipping adding profile picture...")
-                return True
+                return False
             else:
                 print("Sorry, I didn't understand that. Please try again.")
 
     
+    #Initial profile creation for the current user.
     else:
         print("Wonderful! You would like to create a new profile.")
         print("Let's get some information about you!")
@@ -297,6 +313,15 @@ def create_profile(manager, current_user, is_admin=False):
 
 
 def modify_profile(manager, current_user, is_admin=False):
+    """Allows the user to modify their profile, or for administrators, to modify any profile.
+    
+    :type ProfileManager: the session's ProfileManager
+    :type string: current_user, the user who is logged in.
+    :type boolean: True if the user has admin permissions, False otherwise.
+    :rtype string: the current user's name
+    """
+
+    #Admins are asked whether they want to modify their own or someone else's profile.
     if is_admin:
         user_to_modify = admin_user_selection(manager, current_user, "Whose profile would you like to modify?")
         if user_to_modify == "":
@@ -305,7 +330,7 @@ def modify_profile(manager, current_user, is_admin=False):
         user_to_modify = current_user
 
     while True:
-        print("What would you like to modify?")
+        print(f"You are modifying {user_to_modify}'s profile. What would you like to modify?")
         print("1. Name")
         print("2. Relationship status")
         print("3. Status")
@@ -324,6 +349,8 @@ def modify_profile(manager, current_user, is_admin=False):
                 print("I'm sorry, we weren't able to make that name change.")
                 print("This may be because the old name wasn't found in our network,")
                 print("or because the new name already does exist in our network.")
+
+            #If the user has changed their own name, update their name in this method and in the return.
             elif current_user == user_to_modify:
                     user_to_modify = new_name
                     current_user = new_name 
@@ -340,6 +367,10 @@ def modify_profile(manager, current_user, is_admin=False):
             print("Sorry, I didn't understand that. Please try again.")
 
 def view_all_profiles(manager):
+    """Allows the user to view a list of all profiles using either a breadth-first or a depth-first search.
+    
+    :type ProfileManager: The session's ProfileManager
+    """
     while True:
         print("What search method would you like to use to view all profiles in the network?")
         print("1. Breadth-first search")
@@ -358,24 +389,34 @@ def view_all_profiles(manager):
             print("I'm sorry, I didn't understand that. Please try again.")
 
 def add_friend(manager, current_user):
+    """Allows the user to add their friends.
+    
+    :type ProfileManager: the session's ProfileManager
+    :type string: current_user, the user who is logged in.
+    """
     while True:
         friend_to_add = input(
             "Enter the name of the friend you would like to add, or enter 99 to return to the main menu: "
         ).strip().title()
 
+        #User may exit to main menu
         if friend_to_add == "99":
             return
         
+        #Disallow adding self as friend
         elif friend_to_add == current_user:
             print("You cannot add yourself as a friend! Would you like to try again?")
 
+        #Disallow adding friends not in the network
         elif not manager.contains_profile(friend_to_add):
             print("Sorry, this friend hasn't joined the Glubs Social Media Network yet!")
             print("Would you like to enter the name of a different friend?")
 
+        #Disallow adding users who are already friends
         elif friend_to_add in manager.get_friends_of_friends(current_user, "bfs"):
             print("This user is already your friend! Would you like to add a different friend?")
 
+        #Add friend
         else:
             successful = manager.connect_profiles(current_user, friend_to_add)
             if successful: 
@@ -386,6 +427,11 @@ def add_friend(manager, current_user):
 
 
 def view_friends(manager, current_user):
+    """Allows the user to view their own friends using either BFS or DFS.
+    
+    :type ProfileManager: the session's ProfileManager
+    :type string: current_user, the user who is logged in.
+    """
     while True:
         print(f"What search method would you like to use to view your friends?")
         print("1. Breadth-first search")
@@ -404,10 +450,19 @@ def view_friends(manager, current_user):
             print("I'm sorry, I didn't understand that. Please try again.")
 
 def view_friends_of_friends(manager, current_user, is_admin=False):
+    """Allows the user to view a friend's friend list, or for admins, to view anyone's friend list.
+    
+    :type ProfileManager: the session's ProfileManager
+    :type string: current_user, the user who is logged in.
+    :type boolean: True if the user has admin permissions, False otherwise.
+    """
+    #Admins may choose to view their own or anyone else's friends.
     if is_admin:
         user_to_get_friends = admin_user_selection(manager, current_user, "Whose friends would you like to view? ")
         if user_to_get_friends == "":
             return
+        
+    #Regular users may only view their friends' friend lists.
     else:
         user_to_get_friends = verify_user_is_friend(manager, current_user, "Whose friends would you like to view? ")
         if user_to_get_friends == "":
@@ -432,23 +487,34 @@ def view_friends_of_friends(manager, current_user, is_admin=False):
 
 
 def delete_profile(manager, current_user, is_admin=False):
+    """Allows the user to delete their profile, or for administrators, to delete any profile.
     
+    :type ProfileManager: the session's ProfileManager
+    :type string: current_user, the user who is logged in.
+    :rtype boolean: True if the user successfully deletes their own profile, False otherwise.
+    """
+    
+    #Admins may choose to delete their own or someone else's profile.
     user_to_delete = current_user
     if is_admin:
         user_to_delete = admin_user_selection(manager, current_user, "Whose account would you like to delete?")
 
     while True:
+        #Give user a chance to change their mind before deleting the profile.
         print(f"Really delete {user_to_delete}'s profile?")
         print("1. Yes")
         print("2. No (return to main menu)")
         user_input = input(
             "Enter your choice: "
         ).strip().lower()
+
+        #The user will be returned to the main menu after the profile is deleted or the deletion failed. 
+        #If they deleted their own profile, they will be logged out as well.
         if user_input == "1":
             success = manager.remove_profile(user_to_delete)
             if success: 
                 print(f"{user_to_delete}'s profile has been deleted.")
-                return user_to_delete == current_user
+                return user_to_delete == current_user 
             else:
                 print("Sorry, something went wrong and the deletion was unsuccessful. Returning to main menu.")
                 return False
@@ -458,6 +524,11 @@ def delete_profile(manager, current_user, is_admin=False):
             print("Sorry, I didn't understand that. Please try again.")
 
 def read_profiles_from_csv(manager):
+    """Builds the social network from the provided csv file.
+    
+    :type ProfileManager: the session's ProfileManager
+    :type string: current_user, the user who is logged in.
+    """
     print("Building profiles from data file...")
     try:
         manager.read_profiles_from_csv(PROFILES_DATA_FILE_PATH)
@@ -467,13 +538,21 @@ def read_profiles_from_csv(manager):
     except FileNotFoundError:
         print("Error: The file was not found. Unable to build profiles from csv.")
         print("Returning to main menu...")
+        return
     except Exception as e:
         print(f"An unexpected error occurred: {e}. Unable to build profiles from csv.")
         print("Returning to main menu...")
+        return
     
 
 def create_user_network_graph(manager, current_user):
+    """Creates a graph of the current user's network.
+    
+    :type ProfileManager: the session's ProfileManager
+    :type string: current_user, the user who is logged in.
+    """
     manager.create_user_graph(current_user)
+
 
             
 
@@ -488,7 +567,12 @@ def create_user_network_graph(manager, current_user):
 
 
 def validate_relationship_input():
+        """Validates relationship status input.
         
+        :rtype string: The valid, recognized relationship status, or an empty string if the user exits without entering a valid input.
+        """
+        
+        #Permitted inputs and their mappings
         relationship_dictionary = {
             "1": "Single",
             "single": "Single",
@@ -515,6 +599,10 @@ def validate_relationship_input():
                 return relationship_dictionary[user_input]
 
 def validate_jpg():
+    """Validates that a string is a jpg file name.
+    
+    :rtype string: the valid jpg file name, or an empty string if the user exits without entering a valid input.
+    """
     while True:
         user_input = input(
             "Please enter the name of your jpg file, or enter 99 to return to the main menu. "
@@ -527,6 +615,11 @@ def validate_jpg():
             print("Photo must be a jpg file. Please try again.")
 
 def validate_existing_username(manager):
+    """Prompts the user for a valid username that exists in the current network.
+
+    :type ProfileManager: manager, the session's ProfileManager.
+    :rtype string: a valid username connected to an existing profile, or an empty string if the user exits.
+    """
     while True:
         user_input = input(
             "Please enter the username: "
@@ -538,6 +631,11 @@ def validate_existing_username(manager):
         else: print("Sorry, that username does not exist on our network. Please try again, or enter 99 to return.")
 
 def validate_integer_input(prompt):
+    """Prompts the user for a valid integer input.
+    
+    :type string: prompt, the specific prompt to be used
+    :rtype int: A valid integer
+    """
     while True:
         user_input = input(prompt).strip()
         try:
@@ -547,6 +645,13 @@ def validate_integer_input(prompt):
 
 
 def admin_user_selection(manager, current_user, prompt):
+    """Allows an admin to choose whether they wish to perform an operation on themselves or on a different user in the network.
+    
+    :type ProfileManager: the session's ProfileManager
+    :type string: current_user, the user who is logged in.
+    :type string: prompt, the specific prompt to be used
+    :rtype string: A valid username of someone on the network
+    """
     while True:
             print(prompt)
             print("1. Yours")
@@ -563,7 +668,17 @@ def admin_user_selection(manager, current_user, prompt):
                 print("Sorry, I didn't understand that. Please try again.")
 
 def verify_user_is_friend(manager, current_user, prompt):
+    """Prompts a user to choose a valid friend from their friends list.
+    
+    :type ProfileManager: manager, the session's ProfileManager
+    :type string: current_user, the user who is logged in.
+    :type string: prompt, the specific prompt to be used.
+    :rtype string: A valid friend of the user, or an empty string if the user exits the menu.
+    """
+
+    #Get the user's friend list
     friend_list = manager.get_friends_of_friends(current_user, "bfs")
+
     while True:
         print(prompt)
         friend_name = input("Enter your friend's name: ").strip().title()
