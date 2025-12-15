@@ -1,6 +1,7 @@
 #Written by Leah Gibbons, with contributions and testing from Bea Sauve
 
 from profile_manager import ProfileManager
+PROFILES_DATA_FILE_PATH = "data/profiles.csv"
 
 def main():
 
@@ -57,7 +58,7 @@ def login_user(manager):
         print(f"Welcome back, {username}!")
         return username
     else:
-        print("Welcome, new user!")
+        print(f"Welcome, {username}!")
         profile_created = create_profile(manager, username)
         if profile_created:
             return username
@@ -86,7 +87,7 @@ def display_user_menu(manager, current_user):
         if user_was_deleted:
             print("Logging out...")
             return
-        print("User Menu:")
+        print(f"User Menu: Logged in as {current_user}")
         print("1. Modify your profile")
         print("2. Add a friend")
         print("3. View your friend list")
@@ -125,7 +126,7 @@ def display_admin_menu(manager, current_user):
         if user_was_deleted:
             print("Logging out...")
             return
-        print("Admin Menu:")
+        print(f"Admin Menu: Logged in as {current_user}")
         print("1. Create a profile")
         print("2. Modify profile")
         print("3. View all profiles")
@@ -141,7 +142,7 @@ def display_admin_menu(manager, current_user):
         user_input = input("Select your menu option: ").strip().lower()
 
         if user_input == "1": 
-            create_profile(manager, current_user)
+            create_profile(manager, current_user, True)
 
         elif user_input == "2":
             #This option can change the current user's name, so we need to always check for that.
@@ -151,7 +152,7 @@ def display_admin_menu(manager, current_user):
         elif user_input == "4":
             add_friend(manager, current_user)
         elif user_input == "5":
-            view_friends(manager, current_user, True)
+            view_friends(manager, current_user)
         elif user_input == "6":
             view_friends_of_friends(manager, current_user, True)
         elif user_input == "7":
@@ -202,11 +203,55 @@ def verify_user(self, name):
 # | MENU OPTIONS |
 # ****************
 
-def create_profile(manager, current_user):
-    if manager.contains_profile(current_user):
+def create_profile(manager, current_user, is_admin=False):
+    if not is_admin and manager.contains_profile(current_user):
         print("A profile already exists under this name.")
         print("Returning to main menu...")
         return False
+    elif manager.contains_profile(current_user):
+        print("Admin: You are creating a new profile for someone else.")
+        print("Let's get their information!")
+        new_user = input(
+            "What is their name? "
+        ).strip().title()
+        location = input(
+            "What is their location? "
+        ).strip().title()
+        relationship_status = validate_relationship_input() 
+        if relationship_status == "":
+            print("Skipping adding relationship status.")
+        age = validate_integer_input("What is their age? ")
+        occupation = input(
+            "What is their occupation? "
+        ).strip().title()
+        astrological_sign = input(
+            "What is their astrological sign? "
+        ).strip().title()
+        status = input(
+            "What are they up to right now? "
+        ).strip()
+
+        manager.add_profile(new_user, location, relationship_status, age, occupation, astrological_sign, status)
+
+        print(f"Success! A new profile has been created under the name {new_user}")
+        while True: 
+            print("Would you like to add a profile picture?")
+            user_input = input(
+                "Enter 1 for yes or 2 for no: "
+            )
+            if user_input == "1":
+                new_profile = manager.get_profile(current_user)
+                photo = validate_jpg()
+                if photo != "":
+                    new_profile.add_photo(photo)
+                    print("Success! Their profile picture has been added")
+                return True
+            elif user_input == "2":
+                print("Skipping adding profile picture...")
+                return True
+            else:
+                print("Sorry, I didn't understand that. Please try again.")
+
     
     else:
         print("Wonderful! You would like to create a new profile.")
@@ -217,9 +262,7 @@ def create_profile(manager, current_user):
         relationship_status = validate_relationship_input() 
         if relationship_status == "":
             print("Skipping adding relationship status.")
-        age = input(
-            "What is your age? "
-        ).strip()
+        age = validate_integer_input("What is your age? ")
         occupation = input(
             "What is your occupation? "
         ).strip().title()
@@ -243,7 +286,7 @@ def create_profile(manager, current_user):
                 photo = validate_jpg()
                 if photo != "":
                     new_profile.add_photo(photo)
-                    print("Success! Your profile picture has been added. You will be returned to the main menu.")
+                    print("Success! Your profile picture has been added")
                 return True
             elif user_input == "2":
                 print("Skipping adding profile picture...")
@@ -292,7 +335,7 @@ def modify_profile(manager, current_user, is_admin=False):
             new_status = input(
                 "Enter the new status: "
             ).strip().lower()
-            manager.get_value(user_to_modify).set_status(new_status)
+            manager.get_profile(user_to_modify).set_status(new_status)
         else:
             print("Sorry, I didn't understand that. Please try again.")
 
@@ -366,7 +409,7 @@ def view_friends_of_friends(manager, current_user, is_admin=False):
         if user_to_get_friends == "":
             return
     else:
-        user_to_get_friends = verify_user_is_friend(manager, current_user, "Whose friends would you like to view?")
+        user_to_get_friends = verify_user_is_friend(manager, current_user, "Whose friends would you like to view? ")
         if user_to_get_friends == "":
             return
 
@@ -415,44 +458,23 @@ def delete_profile(manager, current_user, is_admin=False):
             print("Sorry, I didn't understand that. Please try again.")
 
 def read_profiles_from_csv(manager):
-    while True:
-        print("Which CSV file would you like to use to build the network?")
-        file_path = input("Enter the file name (or 99 to return to main menu): ").strip()
-        
-        if file_path == "99":
-            print("Returning to main menu...")
-            return
-
-        try:
-            manager.read_profiles_from_csv(file_path)
-            print(f"Profiles successfully loaded from '{file_path}'.")
-            return 
-        except FileNotFoundError:
-            print(f"Error: File '{file_path}' was not found. Please check the filename and try again.")
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}")
-        
-        print("Please try again or enter 99 to return to the main menu.")
+    print("Building profiles from data file...")
+    try:
+        manager.read_profiles_from_csv(PROFILES_DATA_FILE_PATH)
+        print("Profiles successfully loaded from data file!")
+        print("Returning to main menu...")
+        return 
+    except FileNotFoundError:
+        print("Error: The file was not found. Unable to build profiles from csv.")
+        print("Returning to main menu...")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}. Unable to build profiles from csv.")
+        print("Returning to main menu...")
+    
 
 def create_user_network_graph(manager, current_user):
     manager.create_user_graph(current_user)
 
-
-
-    
-
-
-
-
-
-
-
-
-
-    
-
-            
-        
             
 
 
@@ -477,7 +499,7 @@ def validate_relationship_input():
         }
 
         while True: 
-            print("What is your relationship status?:")
+            print("Current relationship status?")
             print("1. Single")
             print("2. In a relationship")
             print("3. Married")
@@ -495,7 +517,7 @@ def validate_relationship_input():
 def validate_jpg():
     while True:
         user_input = input(
-            "Please enter the name of your jpg file, or enter 99 to return to the main menu."
+            "Please enter the name of your jpg file, or enter 99 to return to the main menu. "
         ).strip()
         if user_input.lower().endswith(".jpg"):
             return user_input
@@ -514,6 +536,15 @@ def validate_existing_username(manager):
         elif manager.contains_profile(user_input):
             return user_input
         else: print("Sorry, that username does not exist on our network. Please try again, or enter 99 to return.")
+
+def validate_integer_input(prompt):
+    while True:
+        user_input = input(prompt).strip()
+        try:
+            return int(user_input)
+        except ValueError:
+            print("Please enter a valid integer.")
+
 
 def admin_user_selection(manager, current_user, prompt):
     while True:

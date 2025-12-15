@@ -75,6 +75,7 @@ class ProfileManager:
             user2.add_friend(name1)
             #Indicate friendship by adding edges to their vertices
             self.graph_manager.add_edge(name1, name2)
+            return True
         
         else:
             return False
@@ -117,7 +118,7 @@ class ProfileManager:
             #Access profile
             profile = self.dict_manager.get_value(former_name)
             #Modify profile name and name attatched to friends if new name doesn't already exist
-            if not self.contains_profiles(new_name):
+            if not self.contains_profile(new_name):
                 profile.set_name(new_name)
                 #Modify new name to appear in their firends' friend list
                 for friends in profile.get_friends():
