@@ -357,7 +357,7 @@ def modify_profile(manager, current_user, is_admin=False):
         elif user_input == "2":
             relationship_status = validate_relationship_input()
             if relationship_status != "":
-                manager.get_value(user_to_modify).set_relationship(relationship_status)
+                manager.get_profile(user_to_modify).set_relationship(relationship_status)
         elif user_input == "3":
             new_status = input(
                 "Enter the new status: "
@@ -547,11 +547,11 @@ def read_profiles_from_csv(manager):
 
 def create_user_network_graph(manager, current_user):
     """Creates a graph of the current user's network.
-    
+
     :type ProfileManager: the session's ProfileManager
     :type string: current_user, the user who is logged in.
     """
-    manager.create_user_graph(current_user)
+    manager.create_user_graph(current_user,1)
 
 
             

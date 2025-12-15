@@ -158,7 +158,9 @@ def test_profile_manager():
     with patch("builtins.input", side_effect = ["DFS"]):
         print(manager.display_profiles())
     #test visulaization
-    manager.create_user_graph("Bob")
+    #manager.create_user_graph("Bob",0)
+    manager.create_user_graph("Bob",None)
+
 
 
 # ------------------------------------ #

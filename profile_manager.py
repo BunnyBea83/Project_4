@@ -201,20 +201,37 @@ class ProfileManager:
         if failed_rows:
             print(failed_rows)                              
 
-    def create_user_graph(self, current_user, depth=1):
+    def create_user_graph(self, current_user, depth):
         '''Display graph of user and their friend connections.
         
         :type vertex: Vertex on graph indicated by current user.
+        :type depth: int or None, if int, O implies just friends of user, 1 or greater implies friends of firends, None implies show everyone
         :rtype graphviz: Visualization of user and who their connected to.
         '''
         dot = graphviz.Graph()
         visited = set()
+        #track edges to avoid duplicates
+        added_edges = set()
         start = self.graph_manager.get_vertex(current_user)
-        self.__add_nodes(dot, start, visited)
-        dot.render(f"{current_user}_graph", format="png", view=True)
+        #add initial node
+        dot.node(start.key, start.key)
+        #Recurse develop the graph based on depth
+        self.__add_nodes(dot,start,visited,added_edges,remaining_depth = depth)
+        #Used to display all users including un attatched
+        if depth is None:
+            all_vertices = list(self.graph_manager.get_vertices())
+            for user in all_vertices:
+                if user not in visited:
+                    # Add node and traverse its component
+                    dot.node(user, user)
+                    user_vert = self.graph_manager.get_vertex(user)
+                    if user_vert:
+                        self.__add_nodes(dot, user_vert, visited, added_edges, remaining_depth=None)
+
+        dot.render(f"{current_user}_graph", format="png", view=True, cleanup=True)
         return dot
 
-    def __add_nodes(self, dot, node, visited):
+    def __add_nodes(self, dot, node, visited, added_edges,remaining_depth = None):
         ''' Helper method to recursively add nodes and edges to Graphviz object
         
         :type dot: dot object Diagraph for graphviz
@@ -222,15 +239,33 @@ class ProfileManager:
         #keep track of vertices, and loop till all have been visited
         if node is None or node.key in visited:
             return
+        #Stop recursion if specified depth is reached
+        if isinstance(remaining_depth, int) and remaining_depth < 0:
+            return
+        #Track that node has been added
         visited.add(node.key)
-        #obtain a list of all connected keys
-        friends_list = node.get_connections()
-        #create the vertex into a node
+        #Create the vertex into a node
         dot.node(node.key, node.key)
+        #Obtain a list of all connected keys
+        friends_list = set(node.get_connections())
+        #Draw edges to neighbors
         for friend in friends_list:
-            dot.edge(node.key, friend)
-            friend_vertex = self.graph_manager.get_vertex(friend)
-            self.__add_nodes(dot, friend_vertex, visited)
+            #Skip self loops
+            if friend == node.key:
+                continue
+            #create undirected graph with normalized edges
+            edge = tuple(sorted((node.key, friend)))
+            if edge not in added_edges:
+                dot.edge(node.key, friend)
+                added_edges.add(edge)
+        #Recurse if there's more depth
+        if remaining_depth is None or remaining_depth > 0:
+            next_depth = None if remaining_depth is None else remaining_depth - 1
+            for friend in friends_list:
+                if friend == node.key:
+                    continue
+                friend_vertex = self.graph_manager.get_vertex(friend)
+                self.__add_nodes(dot, friend_vertex, visited, added_edges, next_depth)
     
     def contains_profile(self, profile):
         '''Method that returns whether a profile exists within the manager
