@@ -124,8 +124,7 @@ class UndirectedGraph:
         # Remove old vertex
         self.vertices.remove(old_key)
 
-        return True
-                
+        return True          
      
     def get_vertex(self, key):
         """Retrieves the Vertex object associated with the given key.
@@ -148,14 +147,12 @@ class UndirectedGraph:
             self.vertices.get_value(from_key).add_neighbor(to_key)
             self.vertices.get_value(to_key).add_neighbor(from_key)
 
-
     def get_vertices(self):
         """Retrieves a list of keys of all vertices in the graph.
         
         :rtype list: a list of all the graph's vertices, represented as keys.
         """
         return list(self.vertices.get_keys())
-
 
     def contains(self, key):
         """Checks if the given key is in the graph.
@@ -196,7 +193,6 @@ class UndirectedGraph:
                 if (nbr, k) not in edges: #avoid duplicates--if (A, B) is already in the list, we don't want to add (B, A)
                     edges.append((k, nbr))
         return edges
-
 
     def bfs(self, start=None): 
         """Completely traverses the graph in a breadth-first search. Works on unconnected graphs.
