@@ -63,6 +63,9 @@ def login_user(manager):
     username = input(
         "Please enter your name: "
     ).strip().title()
+    if username == "99":
+        print("Cheeky!")
+        username = "Ninety-Nine"
     if manager.contains_profile(username):
         print(f"Welcome back, {username}!")
         return username
@@ -246,6 +249,9 @@ def create_profile(manager, current_user, is_admin=False):
             "What are they up to right now? "
         ).strip()
 
+        if new_user == "99":
+            new_user = "Ninety-Nine"
+
         manager.add_profile(new_user, location, relationship_status, age, occupation, astrological_sign, status)
 
         print(f"Success! A new profile has been created under the name {new_user}")
@@ -357,7 +363,7 @@ def modify_profile(manager, current_user, is_admin=False):
         elif user_input == "2":
             relationship_status = validate_relationship_input()
             if relationship_status != "":
-                manager.get_profile(user_to_modify).set_relationship(relationship_status)
+                manager.get_value(user_to_modify).set_relationship(relationship_status)
         elif user_input == "3":
             new_status = input(
                 "Enter the new status: "
@@ -546,12 +552,12 @@ def read_profiles_from_csv(manager):
     
 
 def create_user_network_graph(manager, current_user):
-    """Creates a graph of the current user's network.
-
+    """Creates a graph of the current user's network (self, friends, and friends of friends).
+    
     :type ProfileManager: the session's ProfileManager
     :type string: current_user, the user who is logged in.
     """
-    manager.create_user_graph(current_user,1)
+    manager.create_user_graph(current_user, 1)
 
 
             

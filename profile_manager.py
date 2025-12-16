@@ -20,12 +20,15 @@ class ProfileManager:
         :type string: name, location, relationship_status, occupation, atrological_sign, status, Information about the user.
         :type int: age, The users' age
         '''
+        name = name.strip().title()
+
         if not self.contains_profile(name):
             user = UserProfile(name, location, relationship_status,age, occupation, astrological_sign, status)
             # Add the profile to dictionary manager
             self.dict_manager.add(name, user)
             # Add the profile to graph manager
             self.graph_manager.add_vertex(name)
+            return True
         else:
             return False
 
@@ -120,6 +123,11 @@ class ProfileManager:
             #Modify profile name and name attatched to friends if new name doesn't already exist
             if not self.contains_profile(new_name):
                 profile.set_name(new_name)
+
+                #Old name removed, new name added to dictionary
+                self.dict_manager.remove(former_name)
+                self.dict_manager.add(new_name, profile)
+
                 #Modify new name to appear in their firends' friend list
                 for friends in profile.get_friends():
                     friend = self.dict_manager.get_value(friends)
@@ -127,6 +135,7 @@ class ProfileManager:
                     friend.add_friend(new_name)
                 #Modify the name appearing in the graph manager
                 self.graph_manager.rename_vertex(former_name,new_name)
+                return True
             #Return false if new name already exists
             else:
                 return False
