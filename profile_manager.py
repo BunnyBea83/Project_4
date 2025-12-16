@@ -44,7 +44,6 @@ class ProfileManager:
         else:
             return False
        
-    
     def remove_profile(self, name):
         ''' Remove a users profile from all manager locations and friends they are attached to.
 
@@ -98,7 +97,6 @@ class ProfileManager:
         else:
             return None
         
-
     def display_profile_details(self, name):
         ''' Display users profile details.
 
@@ -160,8 +158,6 @@ class ProfileManager:
         #False if name doesn't exist
         else:
             return False
-
-    
 
     def read_profiles_from_csv(self, file_path):
         '''Given a file path, read the file, create user profiles, and add them to the profile manager
