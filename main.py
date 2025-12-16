@@ -105,22 +105,23 @@ def display_user_menu(manager, current_user):
     :rtype boolean: True if the user chooses to quit the program, False to send them back to the login menu.
     """
     user_was_deleted = False
+    user_active_status(manager, current_user, True)
     while True: 
 
         #If the user deleted their profile, force logout.
         if user_was_deleted:
             print("Logging out...")
             return False
-        
         print(f"User Menu: Logged in as {current_user}")
         print("1. Modify your profile")
-        print("2. Add a friend")
-        print("3. View your friend list")
-        print("4. View a friend's friend list")
-        print("5. Delete your profile.")
-        print("6. Switch the current user.")
-        print("7. Create graph of current user's network.")
-        print("8. Logout (end program)")
+        print("2. View a profile")
+        print("3. Add a friend")
+        print("4. View your friend list")
+        print("5. View a friend's friend list")
+        print("6. Delete your profile.")
+        print("7. Switch the current user.")
+        print("8. Create graph of current user's network.")
+        print("9. Logout (end program)")
         user_input = input(
             "Select your menu option: "
         ).strip().lower()
@@ -129,19 +130,22 @@ def display_user_menu(manager, current_user):
             # This option can change the current user's name, so we need to always check for that.
             current_user = modify_profile(manager, current_user)
         elif user_input == "2":
-            add_friend(manager, current_user)
+            display_user_profile(manager, current_user)
         elif user_input == "3":
-            view_friends(manager, current_user)
+            add_friend(manager, current_user)
         elif user_input == "4":
-            view_friends_of_friends(manager, current_user)
+            view_friends(manager, current_user)
         elif user_input == "5":
-            user_was_deleted = delete_profile(manager, current_user)
+            view_friends_of_friends(manager, current_user)
         elif user_input == "6":
+            user_was_deleted = delete_profile(manager, current_user)
+        elif user_input == "7":
+            user_active_status(manager,current_user, False)
             print("Logging out as current user...")
             return False
-        elif user_input == "7":
-            create_user_network_graph(manager, current_user)
         elif user_input == "8":
+            create_user_network_graph(manager, current_user)
+        elif user_input == "9":
             return True
         else:
             print("Sorry, I didn't recognize that input. Please try again: ")
@@ -156,6 +160,8 @@ def display_admin_menu(manager, current_user):
 
     user_was_deleted = False
 
+    #Set user activity status
+    user_active_status(manager, current_user, True)
     while True: 
 
         #If the user deleted their profile, force logout.
@@ -166,15 +172,16 @@ def display_admin_menu(manager, current_user):
         print(f"Admin Menu: Logged in as {current_user}")
         print("1. Create a profile")
         print("2. Modify profile")
-        print("3. View all profiles")
-        print("4. Add a friend")
-        print("5. View your friend list")
-        print("6. View anyone's friend list")
-        print("7. Delete a profile")
-        print("8. Switch the current user")
-        print("9. Read profiles from CSV")
-        print("10. Create graph of current user's network")
-        print("11. Logout (end program)")
+        print("3. View a users' profile information")
+        print("4. View all profiles")
+        print("5. Add a friend")
+        print("6. View your friend list")
+        print("7. View anyone's friend list")
+        print("8. Delete a profile")
+        print("9. Switch the current user")
+        print("10. Read profiles from CSV")
+        print("11. Create graph of current user's network")
+        print("12. Logout (end program)")
 
         user_input = input("Select your menu option: ").strip().lower()
 
@@ -184,23 +191,26 @@ def display_admin_menu(manager, current_user):
             #This option can change the current user's name, so we need to always check for that.
             current_user = modify_profile(manager, current_user, True)
         elif user_input == "3":
-            view_all_profiles(manager)
+            display_user_profile(manager, current_user)
         elif user_input == "4":
-            add_friend(manager, current_user)
+            view_all_profiles(manager)
         elif user_input == "5":
-            view_friends(manager, current_user)
+            add_friend(manager, current_user)
         elif user_input == "6":
-            view_friends_of_friends(manager, current_user, True)
+            view_friends(manager, current_user)
         elif user_input == "7":
-            delete_profile(manager, current_user, True)
+            view_friends_of_friends(manager, current_user, True)
         elif user_input == "8":
+            delete_profile(manager, current_user, True)
+        elif user_input == "9":
+            user_active_status(manager,current_user,False)
             print("Logging out as current user...")
             return False
-        elif user_input == "9":
-            read_profiles_from_csv(manager)
         elif user_input == "10":
-            create_user_network_graph(manager, current_user)
+            read_profiles_from_csv(manager)
         elif user_input == "11":
+            create_user_network_graph(manager, current_user)
+        elif user_input == "12":
             return True
         else:
             print("Sorry, I didn't recognize that input. Please try again: ")
@@ -394,6 +404,16 @@ def view_all_profiles(manager):
         else:
             print("I'm sorry, I didn't understand that. Please try again.")
 
+def display_user_profile(manager, current_user):
+    '''Gives user the option to display personal profile details or another users details
+    
+    :type ProfileManager: the session's profile manager
+    :type string: current_user, the user who is logged in.
+    '''
+    user_to_view = admin_user_selection(manager, current_user, "Whose profile would you like to view?")
+    manager.display_profile_details(user_to_view)
+    
+
 def add_friend(manager, current_user):
     """Allows the user to add their friends.
     
@@ -538,8 +558,10 @@ def read_profiles_from_csv(manager):
     print("Building profiles from data file...")
     try:
         manager.read_profiles_from_csv(PROFILES_DATA_FILE_PATH)
+        print("|=============================================================|")
         print("Profiles successfully loaded from data file!")
         print("Returning to main menu...")
+        print("|=============================================================|")
         return 
     except FileNotFoundError:
         print("Error: The file was not found. Unable to build profiles from csv.")
@@ -557,7 +579,33 @@ def create_user_network_graph(manager, current_user):
     :type ProfileManager: the session's ProfileManager
     :type string: current_user, the user who is logged in.
     """
-    manager.create_user_graph(current_user, 1)
+    while True:
+        print(f'1. Display your network')
+        print(f'2. Display the entire network')
+        print("99. Return to main menu.")
+        user_input = input(
+            "Enter your selection: ")
+        if user_input == "99":
+            return
+        elif user_input == '1':
+            manager.create_user_graph(current_user, 1)
+        elif user_input == '2':
+            manager.create_user_graph(current_user, None)
+        else: 
+            print("Sorry, I didn't understand that. Please try again.")
+
+def user_active_status(manager, current_user, active = bool):
+    '''Changes a users status to either online or offline
+    
+    :type ProfileManager: the session's ProfileManager
+    :type string: current_user, the user who is logged in.
+    :type boolean: active, boolean indicates whether the user in online or offline
+    '''
+
+    user_profile = manager.get_profile(current_user)
+    user_profile.set_activity(active)
+
+        
 
 
             
