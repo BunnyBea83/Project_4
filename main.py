@@ -172,7 +172,7 @@ def display_admin_menu(manager, current_user):
         print(f"Admin Menu: Logged in as {current_user}")
         print("1. Create a profile")
         print("2. Modify profile")
-        print("3. View a users' profile information")
+        print("3. View a user's profile information")
         print("4. View all profiles")
         print("5. Add a friend")
         print("6. View your friend list")
@@ -373,7 +373,7 @@ def modify_profile(manager, current_user, is_admin=False):
         elif user_input == "2":
             relationship_status = validate_relationship_input()
             if relationship_status != "":
-                manager.get_value(user_to_modify).set_relationship(relationship_status)
+                manager.get_profile(user_to_modify).set_relationship(relationship_status)
         elif user_input == "3":
             new_status = input(
                 "Enter the new status: "
@@ -524,6 +524,8 @@ def delete_profile(manager, current_user, is_admin=False):
     user_to_delete = current_user
     if is_admin:
         user_to_delete = admin_user_selection(manager, current_user, "Whose account would you like to delete?")
+        if user_to_delete == "99":
+            return False
 
     while True:
         #Give user a chance to change their mind before deleting the profile.

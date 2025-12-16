@@ -102,7 +102,7 @@ class UserProfile:
         
         :type boolean: True if user is online, False if offline
         '''
-        self.staus = status
+        self.status = status
     
     def set_activity(self, activity = bool):
         '''Set the user activity to 'Online' or 'Offline
