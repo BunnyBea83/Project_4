@@ -142,12 +142,14 @@ class UserProfile:
         :rtype string: Details of users profile.
         '''
         print(
+            f"|===================={self.name}'s Profile====================|\n"
             f"Image: {self.photo}\n"
             f"Status: {self.status:<18} Currently: {self.activity}\n"
             f"Name: {self.name:<20} Relationship Status: {self.relationship_status} \n"
             f"Age: {self.age:<21} Astrological Sign: {self.astrological_sign}\n"
             f"Occupation: {self.occupation:<14} Location: {self.location}\n"
-            f"Friends List: {self.friends}"
+            f"Friends List: {self.friends}\n"
+            f"|=============================================================|"
         )
 
 
