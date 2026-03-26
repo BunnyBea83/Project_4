@@ -5,7 +5,8 @@ A Python application that models social connections between users as a graph dat
 Course: Data Structures & Alforithms AD325   
 Instructor: Eric Lloyd   
 Project #: 4   
-Authors: Bea Sauve and Leah Gibbons   
+Authors: Bea Sauve and Leah Gibbons  
+Built: 12/2025
 
 ---
 
