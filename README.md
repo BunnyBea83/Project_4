@@ -72,20 +72,78 @@ The core classes are:
 
 ---
 
+---
+ 
 ## Usage
-
-```python
-from profile_manager import ProfileManager
-
-manager = ProfileManager()
-
-# Add users
-manager.add_user("Alice")
-manager.add_user("Bob")
-
-# Connect as friends
-manager.add_friendship("Alice", "Bob")
-
-# Delete a user
-manager.delete_user("Alice")
+ 
+When launched, the app greets you with the Glubs banner and a login menu:
+ 
 ```
+*-----*-----*-----*-----*-----*-----*-----*-----*
+*  Welcome to the Glubs Social Media Network!   *
+*-----*-----*-----*-----*-----*-----*-----*-----*
+How would you like to login?
+1. Login as user
+2. Login as admin
+99. Exit the program.
+```
+ 
+Enter your name to log in. First-time users will be prompted to create a profile.
+ 
+### User Menu
+ 
+Once logged in as a regular user, you can:
+ 
+| Option | Action |
+|--------|--------|
+| 1 | Modify your profile |
+| 2 | View a profile |
+| 3 | Add a friend |
+| 4 | View your friend list |
+| 5 | View a friend's friend list |
+| 6 | Delete your profile |
+| 7 | Switch user |
+| 8 | Visualize your network graph |
+| 9 | Logout |
+ 
+### Admin Menu
+ 
+Admins log in with the password and have additional capabilities:
+ 
+| Option | Action |
+|--------|--------|
+| 1 | Create a profile |
+| 2 | Modify any profile |
+| 3 | View any user's profile |
+| 4 | View all profiles |
+| 5 | Add a friend |
+| 6 | View your friend list |
+| 7 | View anyone's friend list |
+| 8 | Delete any profile |
+| 9 | Switch user |
+| 10 | **Import profiles from CSV** |
+| 11 | Visualize network graph |
+| 12 | Logout |
+ 
+### Network Graph
+ 
+The graph visualizer (option 8/11) lets you display:
+- **Your network** — yourself, your friends, and friends-of-friends
+- **The entire network** — all users and their connections
+ 
+### Bulk Import (Admin)
+ 
+Admins can populate the network from `data/profiles.csv` via option 10. The file path is configured at the top of `main.py`:
+ 
+---
+ 
+## Architecture
+ 
+See `User_Graph_UML.jpg` for the full UML class diagram.
+ 
+| Class | Responsibility |
+|-------|---------------|
+| `UserProfile` | Stores user data: name, relationship status, profile photo, activity status |
+| `ProfileManager` | CRUD operations, friend management, CSV import, graph creation |
+| `GraphADT` | Graph of user relationships; supports traversal on unconnected graphs |
+| `LinkedADTs` | Underlying linked list structures used by the graph |
